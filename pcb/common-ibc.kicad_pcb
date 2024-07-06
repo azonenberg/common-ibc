@@ -12445,7 +12445,7 @@
 		(uuid "d31a00b4-51e1-4e59-87ee-7226784be15a")
 		(at 92.3 51.1 -90)
 		(property "Reference" "U7"
-			(at 1.2 -2.3 0)
+			(at 1.2 -2.45 0)
 			(unlocked yes)
 			(layer "F.SilkS")
 			(uuid "f52d394d-c2a3-4419-92ec-3fdd54eac6ec")
@@ -14346,7 +14346,7 @@
 		(uuid "fda8f62d-6bf5-4f5e-af59-521503c28c6c")
 		(at 48.2 62.15 180)
 		(property "Reference" "R18"
-			(at -3.3 2.65 90)
+			(at -3.3 2.65 -90)
 			(unlocked yes)
 			(layer "F.SilkS")
 			(uuid "d55103e4-d55a-4478-a3b1-dfaa17c62176")
@@ -17541,7 +17541,7 @@
 		)
 	)
 	(gr_text "GND"
-		(at 45.5 43.25 90)
+		(at 44.75 43.25 -90)
 		(layer "F.SilkS")
 		(uuid "8fc2b64e-41b5-4d0a-9405-6a7858fac9b9")
 		(effects
