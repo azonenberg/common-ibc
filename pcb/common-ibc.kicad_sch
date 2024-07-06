@@ -6,7 +6,7 @@
 	(paper "A2")
 	(title_block
 		(title "48 -> 12V IBC 6A 72W")
-		(date "2024-07-04")
+		(date "2024-07-06")
 		(rev "0.4")
 		(company "Antikernel Labs")
 		(comment 1 "Andrew D. Zonenberg")
@@ -10034,9 +10034,9 @@
 		)
 		(uuid "033be8fe-133f-4f32-b09a-995adcdeff1c")
 	)
-	(text "R1 -> R30\nR2 -> R29+R34\nR3 -> R27+R28+R33\n\nVos 3 mV\nIleak 10 nA\nR1+R2 <= (3 mV / 10 nA) or 300K\n\nSHDN: if unused connect to Vin with 510K\nMust keep below 80V\nProbably fine to just say 80V is our specced max (almost 2x overvolt)\nWe don't have 510K handy but have 576K so use that\n\nUndervoltage trip at 40V\nR3 = 300K * (40V - 0.5V)/0.5V = 300K * 79 = 23.7M. Too hard to get this value\n\nUsing 10M for R28/R33 gives 10M + 10M + 576K = 20576K for R3\n20576K = (R1+R2) * 79\nR1+R2 = 260.45K\n\nOvervoltage trip at 56V\nR1 = (260.45K + 20576K) * 0.5V / 56V \n= 186.04K. We have 187K in stock, <1% off\n\nR2 = 260.45K - 187K = 73.45K. We have nothing close\nBut we have 49.9K and 23.2K = 73.1K, <1% off"
+	(text "Datasheet resistor -> our refdes\nR1 -> R30\nR2 -> R29+R34\nR3 -> R27+R28+R33\n\nVos 3 mV\nIleak 10 nA\nR1+R2 <= (3 mV / 10 nA) or 300K\n\nSHDN: if unused connect to Vin with 510K\nMust keep below 80V\nProbably fine to just say 80V is our specced max (almost 2x overvolt)\nWe don't have 510K handy but have 576K so use that\n\nUndervoltage trip at 40V\nR3 = 300K * (40V - 0.5V)/0.5V = 300K * 79 = 23.7M. Too hard to get this value\n\nUsing 10M for R28/R33 gives 10M + 10M + 576K = 20576K for R3\n20576K = (R1+R2) * 79\nR1+R2 = 260.45K\n\nOvervoltage trip at 56V\nR1 = (260.45K + 20576K) * 0.5V / 56V \n= 186.04K. We have 187K in stock, <1% off\n\nR2 = 260.45K - 187K = 73.45K. We have nothing close\nBut we have 49.9K and 23.2K = 73.1K, <1% off"
 		(exclude_from_sim no)
-		(at 138.43 78.74 0)
+		(at 137.922 81.28 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10078,9 +10078,9 @@
 		)
 		(uuid "484128e1-b20a-40a8-af90-02ba3a56a171")
 	)
-	(text "180 mW at 6A out is 30 mV drop\nRemote sense will compensate for this"
+	(text "180 mW at 6A out is 30 mV drop"
 		(exclude_from_sim no)
-		(at 304.8 146.05 0)
+		(at 301.752 142.24 0)
 		(effects
 			(font
 				(size 1.27 1.27)

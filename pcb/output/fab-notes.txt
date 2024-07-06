@@ -1,0 +1,27 @@
+Part number:       common-ibc v0.4
+
+General fabrication notes
+
+    * Boards are be individually routed.
+    * Board material is Shengyi S1000-2M
+    * No specific requirements on prepreg or core thickness.
+    * Outer layer copper 2oz, inner layer 1oz
+    * Blue solder mask on both sides of board.
+    * White silkscreen text on both sides of board.
+    * Pad finish is ENIG.
+    * Finished board thickness is 1.6 mm.
+    * Place UL mark and date code in the area marked on the "F. Fab" gerber layer.
+
+File naming
+    common-ibc-Edge_Cuts.gbr   Board outline
+    common-ibc.drl             Through-board plated holes
+    common-ibc-F_SilkS.gbr     Front silkscreen
+    common-ibc-F.Fab.gbr       Shows requested location of date code and UL marking
+    common-ibc-F_Mask.gbr      Front solder mask
+    common-ibc-F_Cu.gbr        Layer 1 copper
+    common-ibc-In1_Cu.gbr      Layer 2 copper
+    common-ibc-In2_Cu.gbr      Layer 3 copper
+    common-ibc-B_Cu.gbr        Layer 4 copper
+    common-ibc-B_Mask.gbr      Back solder mask
+    common-ibc-B_SilkS.gbr     Back silkscreen
+    common-ibc.d356            Electrical test netlist
