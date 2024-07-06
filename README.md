@@ -5,18 +5,21 @@ This is a 48-12V 72W non-isolated intermediate bus converter which I plan to use
 It uses a charge pump which has a fixed divide-by-4 output ratio rather than using a regulating buck topology. This
 allows high efficiency but requires downstream loads to be able to tolerate a wider range of input voltages.
 
+The architecture is scalable to 2 or 4 parallel converter modules, allowing 144W (12A) or 288W (24A) IBCs based on the
+same chipset to be constructed in a straightforward manner based on a scaling of this design, however there are no
+near-term plans to create such a converter since none of my near term project plans require that much power.
+
 ## Input
 
 The input is +48VDC nominal on a 6-pin Molex Mini-Fit Jr connector, using a pinout compatible with the Mean Well
 GST280A48-C6P power brick (and possibly others). The negative terminal of the input power connection is connected to
 circuit ground.
 
-While the DC-DC module is rated for 20-60V operation, the input capacitors have a 63V rating. With the
-manufacturer-suggested 80% derating, the input supply should not exceed 50.4V on a continuous basis although short term
-excursions up to 60V will not cause damage.
+The permissible operating range is 40 to 56VDC (corresponding to 10 to 14V output). An input protection circuit will
+disable the converter if the input is out of this range.
 
-The unregulated output voltage is 1/4 of the input, so the load's requirements will constrain the allowed
-input voltage range as well.
+The unregulated output voltage is 1/4 of the input, so if the load has tighter requirements for accuracy of the 12V
+rail then this will further constrain the input supply voltage.
 
 ## Internal Construction
 
@@ -50,7 +53,8 @@ implemented in software on the management MCU.
 If a software interlock triggers, the 12V output is disabled. The management MCU will automatically attempt to restart
 the output (as long as the load is still requesting power) at periodic intervals once the fault condition is cleared.
 
-The 3.3V standby output will remain active and the management MCU will remain operational.
+The 3.3V standby output will remain active and the management MCU will remain operational while a software interlock is
+tripped.
 
 ### Input overcurrent
 
@@ -63,8 +67,8 @@ The 12V primary output is fused at 10A using a soldered-down fast-blow fuse.
 The 3.3V standby output is current limited (typical range 3.8 - 5.2A) by the DC-DC converter and does not have an
 supplemental fuse.
 
-If the 12V output current exceeds 6.5A, a software interlock is triggered. The output load switch also has an
-overcurrent shutdown feature, however the software interlock is intended to trip at a lower level.
+If the 12V output current exceeds 6.5A, a software interlock is triggered. The output load switch also has a
+short circuit protection feature, however the software interlock is intended to trip at a lower level.
 
 ### Regulator fault
 
@@ -75,12 +79,27 @@ If any of the internal regulators indicates a problem (PGOOD low) a software int
 If the AT30TS74 indicates an out-of-bounds temperature (ALERT low) a software interlock is triggered.
 
 The MCU does not configure the AT30TS74; on power up the default over-temperature limit (80C) is active. This sensor is
-located on the same I2C management bus as the MCU and may be reconfigured or queried by the load as required.
+located on the same I2C management bus as the MCU and may be reconfigured or queried by the load as required; the
+IBC will activate the interlock if the programmed temperature range is exceeded.
 
-### Under / over voltage
+### Input under / over voltage
 
-If the 12V rail voltage drops below 10V, a software interlock is triggered.
+The input is monitored by a LTC4367 protection controller. If the input voltage drops below 40V or rises above 56V
+(corresponding to 10-14V output) the system will shut down completely (input power cut off upstream of the charge pump,
+disabling the microcontroller, 3.3V standby rail, and all internal circuitry past the protection controller).
 
-If the 12V rail voltage rises above 14V, a software interlock is triggered.
+The LTC4367 protects against overvoltage to +100V as well as negative voltage to -40V, however the input is not
+tolerant to reverse polarity 48V and is keyed to minimize the risk of accidental reverse power connection.
 
-If the 12V rail voltage rises above 17V a zener clamp on the output will begin to conduct, blowing the output fuse.
+The input fuse and common mode choke are upstream of the LTC4367. The choke has a maximum voltage rating of 80V, so
+while the load and ICs on the converter will be protected against input overvoltage to 100V, applying >80V may damage
+the choke.
+
+### Output under / over voltage
+
+Since the output voltage is normally a fixed 4:1 scaling of the input, output voltage drifting beyond this range is
+likely indicative of a failure of the charge pump module.
+
+* If the 12V rail voltage drops below 10V, a software interlock is triggered.
+* If the 12V rail voltage rises above 14V, a software interlock is triggered.
+* If the 12V rail voltage rises above 17V a zener clamp on the output will begin to conduct, blowing the output fuse.
