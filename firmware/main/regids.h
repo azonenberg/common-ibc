@@ -41,6 +41,15 @@ enum ibc_regid_t
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Commands in 00 - 7f available for application
 
+	IBC_REG_VIN			= 0x00,		//Input voltage (uint16 mV)
+	IBC_REG_VOUT		= 0x01,		//Output voltage (uint16 mV)
+	IBC_REG_VSENSE		= 0x02,		//Sense voltage (uint16_t mV)
+
+	IBC_REG_IIN			= 0x10,		//Input current (uint16_t mA)
+	IBC_REG_IOUT		= 0x11,		//Output current (uint16_t mA)
+
+	IBC_REG_VERSION		= 0x20,		//Version string (20 bytes ASCII)
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Commands in 80-ff reserved for the bootloader (or entry to it)
 

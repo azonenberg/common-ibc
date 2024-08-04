@@ -47,4 +47,12 @@ void InitI2C();
 extern UART<16, 256> g_uart;
 extern I2C g_i2c;
 
+extern GPIOPin g_standbyLED;
+extern GPIOPin g_onLED;
+extern GPIOPin g_faultLED;
+
+extern GPIOPin g_loadEnableSense;
+extern GPIOPin g_outEnableFromLoad;
+extern GPIOPin g_outEnableFromProtection;
+
 #endif

@@ -18,8 +18,7 @@ CXXFLAGS=-g -O3 --std=c++20 -Wall -Wextra \
 	-Wl,--wrap=sbrk_aligned \
 	-Wl,--wrap=free \
 	-ffunction-sections \
-	-mfloat-abi=hard \
-	-DNO_CLEAR_SCREEN
+	-mfloat-abi=hard
 
 LDFLAGS=-Wl,-T $(ROOTDIR)/stm32-cpp/devices/link/stm32l431_32kboot_load.ld \
 	 -L$(ROOTDIR)/stm32-cpp/devices/link/ \
