@@ -27,9 +27,7 @@
 *                                                                                                                      *
 ***********************************************************************************************************************/
 
-#include <core/platform.h>
-#include <bootloader/bootloader-common.h>
-#include "../bsp/hwinit.h"
+#include "ibc.h"
 
 typedef void(*fnptr)();
 
@@ -46,6 +44,7 @@ void HardFault_Handler();
 void NMI_Handler();
 
 void defaultISR();
+void USART1_Handler();
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Interrupt vector table
@@ -161,15 +160,16 @@ fnptr __attribute__((section(".vector"))) vectorTable[] =
 extern "C" const char
 	__attribute__((section(".fwid")))
 	__attribute__((used))
-	g_firmwareID[] = "common-ibc-boot";
+	g_firmwareID[] = "common-ibc-app";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Stub for unused interrupts
 
 void defaultISR()
 {
-	while(1)
-	{}
+	g_bbram->m_state = STATE_CRASH;
+	g_bbram->m_crashReason = CRASH_UNUSED_ISR;
+	Reset();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -177,35 +177,73 @@ void defaultISR()
 
 void NMI_Handler()
 {
-	while(1)
-	{}
+	g_bbram->m_state = STATE_CRASH;
+	g_bbram->m_crashReason = CRASH_NMI;
+	Reset();
 }
 
 void HardFault_Handler()
 {
-	//print any pending log messages so we can diagnose
-	g_uart.BlockingFlush();
+	/*
+	uint32_t* msp;
+	asm volatile("mrs %[result], MSP" : [result]"=r"(msp));
+	msp += 12;	//locals/alignment
+	uint32_t r0 = msp[0];
+	uint32_t r1 = msp[1];
+	uint32_t r2 = msp[2];
+	uint32_t r3 = msp[3];
+	uint32_t r12 = msp[4];
+	uint32_t lr = msp[5];
+	uint32_t pc = msp[6];
+	uint32_t xpsr = msp[7];
+
 	g_uart.Printf("Hard fault\n");
-	g_uart.BlockingFlush();
+	g_uart.Printf("    HFSR  = %08x\n", *(volatile uint32_t*)(0xe000ed2C));
+	g_uart.Printf("    MMFAR = %08x\n", *(volatile uint32_t*)(0xe000ed34));
+	g_uart.Printf("    BFAR  = %08x\n", *(volatile uint32_t*)(0xe000ed38));
+	g_uart.Printf("    CFSR  = %08x\n", *(volatile uint32_t*)(0xe000ed28));
+	g_uart.Printf("    UFSR  = %08x\n", *(volatile uint16_t*)(0xe000ed2a));
+	g_uart.Printf("    DFSR  = %08x\n", *(volatile uint32_t*)(0xe000ed30));
+	g_uart.Printf("    MSP   = %08x\n", msp);
+	g_uart.Printf("    r0    = %08x\n", r0);
+	g_uart.Printf("    r1    = %08x\n", r1);
+	g_uart.Printf("    r2    = %08x\n", r2);
+	g_uart.Printf("    r3    = %08x\n", r3);
+	g_uart.Printf("    r12   = %08x\n", r12);
+	g_uart.Printf("    lr    = %08x\n", lr);
+	g_uart.Printf("    pc    = %08x\n", pc);
+	g_uart.Printf("    xpsr  = %08x\n", xpsr);
+
+	g_uart.Printf("    Stack:\n");
+	for(int i=0; i<16; i++)
+		g_uart.Printf("        %08x\n", msp[i]);
 
 	while(1)
 	{}
+	*/
+
+	g_bbram->m_state = STATE_CRASH;
+	g_bbram->m_crashReason = CRASH_HARD_FAULT;
+	Reset();
 }
 
 void BusFault_Handler()
 {
-	while(1)
-	{}
+	g_bbram->m_state = STATE_CRASH;
+	g_bbram->m_crashReason = CRASH_BUS_FAULT;
+	Reset();
 }
 
 void UsageFault_Handler()
 {
-	while(1)
-	{}
+	g_bbram->m_state = STATE_CRASH;
+	g_bbram->m_crashReason = CRASH_USAGE_FAULT;
+	Reset();
 }
 
 void MMUFault_Handler()
 {
-	while(1)
-	{}
+	g_bbram->m_state = STATE_CRASH;
+	g_bbram->m_crashReason = CRASH_MMU_FAULT;
+	Reset();
 }
