@@ -43,6 +43,7 @@
 
 void InitGPIOs();
 void InitI2C();
+void InitADC();
 
 extern UART<16, 256> g_uart;
 extern I2C g_i2c;
@@ -54,5 +55,13 @@ extern GPIOPin g_faultLED;
 extern GPIOPin g_loadEnableSense;
 extern GPIOPin g_outEnableFromLoad;
 extern GPIOPin g_outEnableFromProtection;
+
+uint16_t GetInputVoltage();
+uint16_t GetOutputVoltage();
+uint16_t GetSenseVoltage();
+
+extern ADC* g_adc;
+
+void PrintSensorValues();
 
 #endif

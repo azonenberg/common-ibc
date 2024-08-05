@@ -74,6 +74,9 @@ void BSP_InitClocks()
 		1,	//no further division from SYSCLK to AHB (80 MHz)
 		2,	//APB1 at 40 MHz
 		2);	//APB2 at 40 MHz
+
+	//Select ADC clock as sysclk
+	RCC.CCIPR |= 0x3000'0000;
 }
 
 void BSP_InitUART()

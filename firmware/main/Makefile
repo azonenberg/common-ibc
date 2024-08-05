@@ -1,7 +1,7 @@
 SRCDIR=$(CURDIR)
 ROOTDIR=$(CURDIR)/../../
-CXXFLAGS=-g -O3 --std=c++20 -Wall -Wextra \
-	-mcpu=cortex-m4 -mfpu=fpv4-sp-d16 \
+CXXFLAGS=-g -Og --std=c++20 -Wall -Wextra \
+	-mcpu=cortex-m4 -march=armv7e-m+fp -mfpu=fpv4-sp-d16 -mfloat-abi=hard \
 	-DSTM32L431 \
 	-fno-exceptions -fno-rtti -g --specs=nano.specs -fno-threadsafe-statics \
 	-I$(ROOTDIR) \
@@ -18,7 +18,6 @@ CXXFLAGS=-g -O3 --std=c++20 -Wall -Wextra \
 	-Wl,--wrap=sbrk_aligned \
 	-Wl,--wrap=free \
 	-ffunction-sections \
-	-mfloat-abi=hard \
 	-DNO_CLEAR_SCREEN
 
 LDFLAGS=-Wl,-T $(ROOTDIR)/stm32-cpp/devices/link/stm32l431_32kboot_app.ld \

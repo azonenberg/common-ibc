@@ -29,6 +29,7 @@
 
 #include "ibc.h"
 #include "regids.h"
+#include <math.h>
 
 //I2C2 runs off our APB1 clock (40 MHz)
 //Prescale by 4 to get 10 MHz
@@ -39,6 +40,19 @@ void BSP_MainLoopIteration()
 {
 	const int logTimerMax = 60000;
 	static uint32_t next1HzTick = 0;
+
+	//Check for output enable toggles
+	static bool loadRequestOn = false;
+	bool enableRequest = g_outEnableFromLoad;
+	if(enableRequest != loadRequestOn)
+	{
+		if(enableRequest)
+			g_log("Output enabled by host board\n");
+		else
+			g_log("Output disabled by host board\n");
+
+		loadRequestOn = enableRequest;
+	}
 
 	//Make output-enable LED track the actual load power enable state
 	g_onLED = g_loadEnableSense;
@@ -52,13 +66,44 @@ void BSP_MainLoopIteration()
 	if(g_log.UpdateOffset(logTimerMax) && (next1HzTick >= logTimerMax) )
 		next1HzTick -= logTimerMax;
 
-	//1 Hz timer event for display refreshes
+	//1 Hz timer event
+	static uint32_t nextHealthPrint = 0;
 	if(g_logTimer.GetCount() >= next1HzTick)
 	{
 		next1HzTick = g_logTimer.GetCount() + 10000;
+
+		//DEBUG: log sensor values
+		if(nextHealthPrint == 0)
+		{
+			g_log("Health sensors\n");
+			LogIndenter li(g_log);
+			PrintSensorValues();
+			nextHealthPrint = 60;
+		}
+		nextHealthPrint --;
 	}
+}
 
-	/*
+uint16_t GetInputVoltage()
+{
+	//48V rail is ADC1_IN7, 30.323x division
+	return round(g_adc->ReadChannelScaled(7) * 30.323);
+}
 
-	*/
+uint16_t GetOutputVoltage()
+{
+	//read and throw out a value to wake up the ADC
+	g_adc->ReadChannel(9);
+
+	//12V rail output is ADC_IN9, 5.094x division
+	return round(g_adc->ReadChannelScaled(9) * 5.094);
+}
+
+uint16_t GetSenseVoltage()
+{
+	//read and throw out a value to wake up the ADC
+	g_adc->ReadChannel(5);
+
+	//12V remote sense (including cable loss) is ADC_IN5, 5.094x division
+	return round(g_adc->ReadChannelScaled(5) * 5.094);
 }
