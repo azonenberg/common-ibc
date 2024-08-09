@@ -107,6 +107,9 @@ void InitI2C()
 	//Set our device address, somewhat arbitrarily, to 0x42
 	g_i2c.SetThisNodeAddress(0x42);
 
+	//Wait a little while for bus to initialize
+	g_logTimer.Sleep(100);
+
 	//Set temperature sensor to max resolution
 	uint8_t cmd[3] = {0x01, 0x60, 0x00};
 	if(!g_i2c.BlockingWrite(g_tempI2cAddress, cmd, sizeof(cmd)))

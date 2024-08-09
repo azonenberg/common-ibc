@@ -41,35 +41,35 @@ void IBCI2CServer::OnRequestRead()
 	{
 		//Read input voltage
 		case IBC_REG_VIN:
-			m_i2c.BlockingDeviceWrite16(GetInputVoltage());
+			SendReply16(GetInputVoltage());
 			break;
 
 		//Read output voltage
 		case IBC_REG_VOUT:
-			m_i2c.BlockingDeviceWrite16(GetOutputVoltage());
+			SendReply16(GetOutputVoltage());
 			break;
 
 		//Read sense voltage
 		case IBC_REG_VSENSE:
-			m_i2c.BlockingDeviceWrite16(GetSenseVoltage());
+			SendReply16(GetSenseVoltage());
 			break;
 
 		/*
 		//Read input current
 		case IBC_REG_IIN:
-			m_i2c.BlockingDeviceWrite16(GetInputCurrent());
+			SendReply16(GetInputCurrent());
 			break;
 
 		//Read output current
 		case IBC_REG_IOUT:
-			m_i2c.BlockingDeviceWrite16(GetOutputCurrent());
+			SendReply16(GetOutputCurrent());
 			break;
 		*/
 
 		//Read version string
 		case IBC_REG_VERSION:
 			for(size_t i=0; i<sizeof(g_version); i++)
-				m_i2c.BlockingDeviceWrite8(g_version[i]);
+				SendReply8(g_version[i]);
 			break;
 
 		default:

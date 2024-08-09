@@ -174,8 +174,6 @@ uint16_t ReadThermalSensor(uint8_t addr)
 	if(!g_i2c.BlockingRead16(addr, reply))
 		return 0xff;
 
-	g_log("temp = %x\n", reply);
-
 	return reply;
 }
 
