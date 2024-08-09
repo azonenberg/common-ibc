@@ -6726,6 +6726,12 @@
 		(uuid "500676d0-934c-42eb-87e3-c2105d5b0ce6")
 	)
 	(junction
+		(at 208.28 27.94)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "51e9d026-4a02-4271-897c-649a7fb70ab3")
+	)
+	(junction
 		(at 224.79 358.14)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -6808,12 +6814,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "74a5c888-f6c3-4e7b-b8b2-1c15b10a81f7")
-	)
-	(junction
-		(at 167.64 27.94)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "754bd96b-9f83-43f5-8d8d-38036a1c6a6b")
 	)
 	(junction
 		(at 224.79 177.8)
@@ -6988,6 +6988,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "b58ec806-7110-4b46-b95c-86355855bd84")
+	)
+	(junction
+		(at 168.91 27.94)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "b9787983-b3bd-4e64-94c8-965ff57aa7f3")
 	)
 	(junction
 		(at 201.93 167.64)
@@ -7257,7 +7263,7 @@
 	)
 	(wire
 		(pts
-			(xy 167.64 35.56) (xy 191.77 35.56)
+			(xy 208.28 35.56) (xy 232.41 35.56)
 		)
 		(stroke
 			(width 0)
@@ -7654,16 +7660,6 @@
 			(type default)
 		)
 		(uuid "3a7ee70e-2c15-42d7-a3ff-df4119511b7c")
-	)
-	(wire
-		(pts
-			(xy 151.13 27.94) (xy 167.64 27.94)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3d8c6086-9112-4634-967a-f15d2498c158")
 	)
 	(wire
 		(pts
@@ -8237,6 +8233,16 @@
 	)
 	(wire
 		(pts
+			(xy 168.91 27.94) (xy 184.15 27.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8fba5499-3b45-4faa-9db0-596879c0d485")
+	)
+	(wire
+		(pts
 			(xy 165.1 369.57) (xy 165.1 372.11)
 		)
 		(stroke
@@ -8254,6 +8260,16 @@
 			(type default)
 		)
 		(uuid "936aaec7-2087-48d5-b54e-6c10b7e0f97e")
+	)
+	(wire
+		(pts
+			(xy 191.77 27.94) (xy 208.28 27.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "93c25dfe-2e0a-464a-bc9e-c14ace37f30b")
 	)
 	(wire
 		(pts
@@ -8527,6 +8543,16 @@
 	)
 	(wire
 		(pts
+			(xy 151.13 27.94) (xy 168.91 27.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b7db0fa2-bddc-4ce1-aa53-c9aa99d3a588")
+	)
+	(wire
+		(pts
 			(xy 406.4 128.27) (xy 427.99 128.27)
 		)
 		(stroke
@@ -8657,7 +8683,7 @@
 	)
 	(wire
 		(pts
-			(xy 167.64 27.94) (xy 191.77 27.94)
+			(xy 208.28 27.94) (xy 232.41 27.94)
 		)
 		(stroke
 			(width 0)
@@ -9017,6 +9043,16 @@
 		)
 		(uuid "033be8fe-133f-4f32-b09a-995adcdeff1c")
 	)
+	(text "TODO: TPS16630 from 48V0_SHOUT to 48V0"
+		(exclude_from_sim no)
+		(at 188.468 53.594 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "1e48e4b2-8a36-4903-93d2-141453bd2a49")
+	)
 	(text "5V standby regulator\nThermally limited to 142 mA"
 		(exclude_from_sim no)
 		(at 344.17 262.89 0)
@@ -9280,7 +9316,7 @@
 		(uuid "09624ac2-deb5-4c8c-b1ae-6a44f6cb8a4c")
 	)
 	(label "GND"
-		(at 191.77 35.56 0)
+		(at 232.41 35.56 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -9355,6 +9391,17 @@
 			(justify left bottom)
 		)
 		(uuid "11f20ed3-8749-42d4-95be-befa0cf6efa6")
+	)
+	(label "GND"
+		(at 168.91 35.56 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "12408cce-331b-4893-8485-3f042b755922")
 	)
 	(label "3V3_SB"
 		(at 383.54 110.49 180)
@@ -9652,6 +9699,17 @@
 			(justify left bottom)
 		)
 		(uuid "38123943-2bab-41e5-b553-a24b37497e86")
+	)
+	(label "48V0_SHOUT"
+		(at 152.4 27.94 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "39157ec4-348e-4728-ba19-9691d4651e0a")
 	)
 	(label "GND"
 		(at 101.6 132.08 180)
@@ -10270,13 +10328,13 @@
 		(uuid "7fda575b-7957-494c-a19d-2bac6371d358")
 	)
 	(label "48V0"
-		(at 158.75 27.94 0)
+		(at 208.28 27.94 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "82198631-4c1a-4694-8138-61d6b2472708")
 	)
@@ -14380,6 +14438,74 @@
 		)
 	)
 	(symbol
+		(lib_id "device:R")
+		(at 187.96 27.94 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "62a79b24-45b0-436f-ba1f-dcf3a2f0d31c")
+		(property "Reference" "R27"
+			(at 187.96 22.7795 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "DNP"
+			(at 187.96 25.2038 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 187.96 29.718 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 187.96 27.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 187.96 27.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "3b475821-12c5-42e2-a6d7-a1d6482f8c9e")
+		)
+		(pin "2"
+			(uuid "c8018560-9635-45dc-b343-f892a7c8daf6")
+		)
+		(instances
+			(project "common-ibc"
+				(path "/20bfa5a1-b612-414f-859c-0b0904e97a2e"
+					(reference "R27")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "device:C")
 		(at 68.58 294.64 90)
 		(unit 1)
@@ -16274,7 +16400,7 @@
 	)
 	(symbol
 		(lib_id "device:CP1")
-		(at 191.77 31.75 0)
+		(at 232.41 31.75 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -16283,7 +16409,7 @@
 		(fields_autoplaced yes)
 		(uuid "7d9f3fbe-bf67-4fc6-9f30-7a37c626e1a6")
 		(property "Reference" "C7"
-			(at 194.691 29.9028 0)
+			(at 235.331 29.9028 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16292,7 +16418,7 @@
 			)
 		)
 		(property "Value" "EEH-ZU1J101V"
-			(at 194.691 32.3271 0)
+			(at 235.331 32.3271 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16301,7 +16427,7 @@
 			)
 		)
 		(property "Footprint" "azonenberg_pcb:CAP_AL_10MM_SMT"
-			(at 191.77 31.75 0)
+			(at 232.41 31.75 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16310,7 +16436,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 191.77 31.75 0)
+			(at 232.41 31.75 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16319,7 +16445,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 191.77 31.75 0)
+			(at 232.41 31.75 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16618,7 +16744,7 @@
 	)
 	(symbol
 		(lib_id "device:CP1")
-		(at 167.64 31.75 0)
+		(at 208.28 31.75 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -16626,7 +16752,7 @@
 		(dnp no)
 		(uuid "8682c631-dcbf-42ef-9c91-256990ba87fc")
 		(property "Reference" "C6"
-			(at 171.45 30.4831 0)
+			(at 212.09 30.4831 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16635,7 +16761,7 @@
 			)
 		)
 		(property "Value" "EEH-ZU1J101V"
-			(at 171.45 33.02 0)
+			(at 212.09 33.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16644,7 +16770,7 @@
 			)
 		)
 		(property "Footprint" "azonenberg_pcb:CAP_AL_10MM_SMT"
-			(at 167.64 31.75 0)
+			(at 208.28 31.75 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16653,7 +16779,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 167.64 31.75 0)
+			(at 208.28 31.75 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16662,7 +16788,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 167.64 31.75 0)
+			(at 208.28 31.75 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -18599,6 +18725,76 @@
 			(project "common-ibc"
 				(path "/20bfa5a1-b612-414f-859c-0b0904e97a2e"
 					(reference "R24")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "device:CP1")
+		(at 168.91 31.75 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "e48e55b6-4761-4255-b6ec-7b1c82e21c05")
+		(property "Reference" "C27"
+			(at 171.831 29.9028 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "DNP"
+			(at 171.831 32.3271 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 168.91 31.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 168.91 31.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Polarised capacitor"
+			(at 168.91 31.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "11f7db24-d2b4-4548-9a57-72a54129c095")
+		)
+		(pin "2"
+			(uuid "306771d1-8d8f-44df-b9ca-bd87cbb29564")
+		)
+		(instances
+			(project "common-ibc"
+				(path "/20bfa5a1-b612-414f-859c-0b0904e97a2e"
+					(reference "C27")
 					(unit 1)
 				)
 			)

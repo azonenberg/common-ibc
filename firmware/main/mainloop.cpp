@@ -31,11 +31,6 @@
 #include "regids.h"
 #include <math.h>
 
-//I2C2 runs off our APB1 clock (40 MHz)
-//Prescale by 4 to get 10 MHz
-//Divide by 100 after that to get 100 kHz
-//I2C g_i2c(&I2C2, 4, 100);
-
 void BSP_MainLoopIteration()
 {
 	const int logTimerMax = 60000;
@@ -52,27 +47,23 @@ void BSP_MainLoopIteration()
 			g_log("Output disabled by host board\n");
 
 		loadRequestOn = enableRequest;
+
+		//Make output-enable LED track the actual load power enable state
+		g_onLED = enableRequest;
 	}
 
-	//Make output-enable LED track the actual load power enable state
-	g_onLED = g_loadEnableSense;
-
-	/*
-	static uint8_t nbyte = 0;
-	static uint8_t cmd = 0;
-	static uint32_t secSinceLastMcuUpdate = 0;
-	*/
 	//Check for overflows on our log message timer
 	if(g_log.UpdateOffset(logTimerMax) && (next1HzTick >= logTimerMax) )
 		next1HzTick -= logTimerMax;
 
 	//1 Hz timer event
-	static uint32_t nextHealthPrint = 0;
+	//static uint32_t nextHealthPrint = 0;
 	if(g_logTimer.GetCount() >= next1HzTick)
 	{
 		next1HzTick = g_logTimer.GetCount() + 10000;
 
 		//DEBUG: log sensor values
+		/*
 		if(nextHealthPrint == 0)
 		{
 			g_log("Health sensors\n");
@@ -81,7 +72,12 @@ void BSP_MainLoopIteration()
 			nextHealthPrint = 60;
 		}
 		nextHealthPrint --;
+		*/
 	}
+
+	//Check for I2C activity
+	static IBCI2CServer server(g_i2c);
+	server.Poll();
 }
 
 uint16_t GetInputVoltage()
@@ -107,3 +103,79 @@ uint16_t GetSenseVoltage()
 	//12V remote sense (including cable loss) is ADC_IN5, 5.094x division
 	return round(g_adc->ReadChannelScaled(5) * 5.094);
 }
+
+/*
+
+uint16_t GetInputCurrent()
+{
+	//Input shunt is 1A / 500 mV on ADC_IN1
+	//(but amplifier has ~80 mV offset)
+	//2 mA / mV, so one LSB = 1.612 mA??
+	//Integrate a lot of samples to account for noise in output at switching frequency
+	//(next board rev should have LPF or something?)
+	const int navg = 32;
+
+	//sum first to avoid delays during acquisition so we sample somewhat evenly
+	//TODO: use hardware averaging mode to avoid the need for this
+	int64_t iin = 0;
+	g_adc->SetSampleTime(3);
+	for(int i=0; i<navg; i++)
+		iin += g_adc->ReadChannel(1);
+
+	//Convert raw adc counts to uV
+	iin = (iin * 806) / navg;
+
+	//Subtract zero offset
+	iin -= 80000;
+
+	//Now we have shunt voltage in uV
+	//1 amp / 500000 uV
+	//so 1000 mA / 500000 uV
+	//or 1 mA / 500 uV
+	//(Not sure where the 10 mA offset is creeping in, but seems to match R&S PSU better that way)
+	return (iin / 500) + 10;
+}
+
+uint16_t GetOutputCurrent()
+{
+	//Output shunt is 1A / 100 mV on ADC_IN7
+	//i.e. 10 mA/mV, or 8.058 mA/code
+	const int navg = 32;
+
+	//sum first to avoid delays during acquisition so we sample somewhat evenly
+	//TODO: use hardware averaging mode to avoid the need for this
+	int64_t iout = 0;
+	g_adc->SetSampleTime(3);
+	for(int i=0; i<navg; i++)
+		iout += g_adc->ReadChannel(7);
+
+	//Convert raw adc counts to uV
+	iout = (iout * 806) / navg;
+
+	//Subtract zero offset
+	iout -= 80000;
+
+	//Now we have shunt voltage in uV
+	//1 amp / 100000 uV
+	//so 1000 mA / 100000 uV
+	//or 1 mA / 100 uV
+	return iout / 100;
+}
+*/
+
+/**
+	@brief Read a temperature sensor at the given I2C address and return the temperature (in 8.8 fixed point format)
+ */
+uint16_t ReadThermalSensor(uint8_t addr)
+{
+	if(!g_i2c.BlockingWrite8(addr, 0x00))
+		return 0xff;
+	uint16_t reply;
+	if(!g_i2c.BlockingRead16(addr, reply))
+		return 0xff;
+
+	g_log("temp = %x\n", reply);
+
+	return reply;
+}
+

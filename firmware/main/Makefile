@@ -32,6 +32,7 @@ all:
 	mkdir -p build
 	cd build
 	$(CXX) $(ROOTDIR)/stm32-cpp/src/cpu/*.* -c $(CXXFLAGS) || exit 1
+	$(CXX) $(ROOTDIR)/stm32-cpp/src/helpers/*.cpp -c $(CXXFLAGS) || exit 1
 	$(CXX) $(ROOTDIR)/common-embedded-platform/core/*.cpp -c $(CXXFLAGS) || exit 1
 	$(CXX) $(ROOTDIR)/firmware/bsp/*.cpp -c $(CXXFLAGS) || exit 1
 	$(CXX) $(CXXFLAGS) -c $(SRCDIR)/*.cpp || exit 1

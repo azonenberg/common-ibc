@@ -27,43 +27,52 @@
 *                                                                                                                      *
 ***********************************************************************************************************************/
 
-#ifndef ibc_h
-#define ibc_h
+#include "ibc.h"
+#include "regids.h"
 
-#include <core/platform.h>
+void IBCI2CServer::OnRequestStart()
+{
+}
 
-#include <peripheral/ADC.h>
-#include <peripheral/I2C.h>
+void IBCI2CServer::OnRequestRead()
+{
+	//Send the reply
+	switch(m_regid)
+	{
+		//Read input voltage
+		case IBC_REG_VIN:
+			m_i2c.BlockingDeviceWrite16(GetInputVoltage());
+			break;
 
-#include <embedded-utils/FIFO.h>
-#include <embedded-utils/StringBuffer.h>
+		//Read output voltage
+		case IBC_REG_VOUT:
+			m_i2c.BlockingDeviceWrite16(GetOutputVoltage());
+			break;
 
-#include <bootloader/BootloaderAPI.h>
-#include "../bsp/hwinit.h"
+		//Read sense voltage
+		case IBC_REG_VSENSE:
+			m_i2c.BlockingDeviceWrite16(GetSenseVoltage());
+			break;
 
-#include "IBCI2CServer.h"
+		/*
+		//Read input current
+		case IBC_REG_IIN:
+			m_i2c.BlockingDeviceWrite16(GetInputCurrent());
+			break;
 
-void InitGPIOs();
-void InitI2C();
-void InitADC();
+		//Read output current
+		case IBC_REG_IOUT:
+			m_i2c.BlockingDeviceWrite16(GetOutputCurrent());
+			break;
+		*/
 
-extern UART<16, 256> g_uart;
-extern I2C g_i2c;
-extern ADC* g_adc;
-extern char g_version[20];
+		//Read version string
+		case IBC_REG_VERSION:
+			for(size_t i=0; i<sizeof(g_version); i++)
+				m_i2c.BlockingDeviceWrite8(g_version[i]);
+			break;
 
-extern GPIOPin g_standbyLED;
-extern GPIOPin g_onLED;
-extern GPIOPin g_faultLED;
-
-extern GPIOPin g_loadEnableSense;
-extern GPIOPin g_outEnableFromLoad;
-extern GPIOPin g_outEnableFromProtection;
-
-uint16_t GetInputVoltage();
-uint16_t GetOutputVoltage();
-uint16_t GetSenseVoltage();
-
-void PrintSensorValues();
-
-#endif
+		default:
+			break;
+	}
+}

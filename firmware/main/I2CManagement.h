@@ -27,43 +27,15 @@
 *                                                                                                                      *
 ***********************************************************************************************************************/
 
-#ifndef ibc_h
-#define ibc_h
+#ifndef I2CManagement_h
+#define I2CManagement_h
 
-#include <core/platform.h>
+class I2CManagement
+{
+public:
+	I2CManagement();
 
-#include <peripheral/ADC.h>
-#include <peripheral/I2C.h>
-
-#include <embedded-utils/FIFO.h>
-#include <embedded-utils/StringBuffer.h>
-
-#include <bootloader/BootloaderAPI.h>
-#include "../bsp/hwinit.h"
-
-#include "IBCI2CServer.h"
-
-void InitGPIOs();
-void InitI2C();
-void InitADC();
-
-extern UART<16, 256> g_uart;
-extern I2C g_i2c;
-extern ADC* g_adc;
-extern char g_version[20];
-
-extern GPIOPin g_standbyLED;
-extern GPIOPin g_onLED;
-extern GPIOPin g_faultLED;
-
-extern GPIOPin g_loadEnableSense;
-extern GPIOPin g_outEnableFromLoad;
-extern GPIOPin g_outEnableFromProtection;
-
-uint16_t GetInputVoltage();
-uint16_t GetOutputVoltage();
-uint16_t GetSenseVoltage();
-
-void PrintSensorValues();
+	void OnWriteByte(uint8_t b);
+};
 
 #endif
