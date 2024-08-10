@@ -84,16 +84,17 @@ IBC will activate the interlock if the programmed temperature range is exceeded.
 
 ### Input under / over voltage
 
-The input is monitored by a LTC4367 protection controller. If the input voltage drops below 40V or rises above 56V
-(corresponding to 10-14V output) the system will shut down completely (input power cut off upstream of the charge pump,
-disabling the microcontroller, 3.3V standby rail, and all internal circuitry past the protection controller).
+The input is monitored by a TPS16630 protection controller, which also provides soft-start for the input bulk
+capacitance. If the input voltage drops below 40V or rises above 56V (corresponding to 10-14V output) the system will
+shut down completely (input power cut off upstream of the charge pump, disabling the microcontroller, 3.3V standby
+rail, and all internal circuitry past the protection controller).
 
-The LTC4367 protects against overvoltage to +100V as well as negative voltage to -40V, however the input is not
-tolerant to reverse polarity 48V and is keyed to minimize the risk of accidental reverse power connection.
+The input has a Schottky diode to ground in reverse polarity. If the input goes significantly negative (reverse
+polarity connection) the diode will conduct and blow the input fuse, hopefully protecting the load and possibly even
+the power supply from damage.
 
-The input fuse and common mode choke are upstream of the LTC4367. The choke has a maximum voltage rating of 80V, so
-while the load and ICs on the converter will be protected against input overvoltage to 100V, applying >80V may damage
-the choke.
+As an additional protection against catastrophic overvoltage at the input, a zener clamp will trip at approximately
+58V, blowing the input fuse.
 
 ### Output under / over voltage
 
