@@ -63,6 +63,8 @@ extern GPIOPin g_outEnableFromProtection;
 uint16_t GetInputVoltage();
 uint16_t GetOutputVoltage();
 uint16_t GetSenseVoltage();
+uint16_t GetInputCurrent();
+uint16_t GetOutputCurrent();
 
 void PrintSensorValues();
 

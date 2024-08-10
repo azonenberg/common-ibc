@@ -104,76 +104,42 @@ uint16_t GetSenseVoltage()
 	return round(g_adc->ReadChannelScaled(5) * 5.094);
 }
 
-/*
-
 uint16_t GetInputCurrent()
 {
-	//Input shunt is 1A / 500 mV on ADC_IN1
-	//(but amplifier has ~80 mV offset)
-	//2 mA / mV, so one LSB = 1.612 mA??
-	//Integrate a lot of samples to account for noise in output at switching frequency
-	//(next board rev should have LPF or something?)
+	//Integrate a few samples to denoise
 	const int navg = 32;
-
-	//sum first to avoid delays during acquisition so we sample somewhat evenly
-	//TODO: use hardware averaging mode to avoid the need for this
-	int64_t iin = 0;
-	g_adc->SetSampleTime(3);
+	float iin = 0;
+	float vdd = g_adc->GetSupplyVoltage();
 	for(int i=0; i<navg; i++)
-		iin += g_adc->ReadChannel(1);
+		iin += g_adc->ReadChannel(6);
 
-	//Convert raw adc counts to uV
-	iin = (iin * 806) / navg;
+	//Convert sum of raw adc codes to average millivolts
+	iin = (iin * vdd) / (navg * 4096);
 
-	//Subtract zero offset
-	iin -= 80000;
+	//Subtract amplifier offset (datasheet says 80 mV typical but we measure more like 75)
+	//TODO: should this be a per unit cal factor?
+	iin -= 74;
 
-	//Now we have shunt voltage in uV
-	//1 amp / 500000 uV
-	//so 1000 mA / 500000 uV
-	//or 1 mA / 500 uV
-	//(Not sure where the 10 mA offset is creeping in, but seems to match R&S PSU better that way)
-	return (iin / 500) + 10;
+	//Convert zero-referenced shunt voltage back to current
+	return round(iin * 2);
 }
 
 uint16_t GetOutputCurrent()
 {
-	//Output shunt is 1A / 100 mV on ADC_IN7
-	//i.e. 10 mA/mV, or 8.058 mA/code
+	//Integrate a few samples to denoise
 	const int navg = 32;
-
-	//sum first to avoid delays during acquisition so we sample somewhat evenly
-	//TODO: use hardware averaging mode to avoid the need for this
-	int64_t iout = 0;
-	g_adc->SetSampleTime(3);
+	float iin = 0;
+	float vdd = g_adc->GetSupplyVoltage();
 	for(int i=0; i<navg; i++)
-		iout += g_adc->ReadChannel(7);
+		iin += g_adc->ReadChannel(12);
 
-	//Convert raw adc counts to uV
-	iout = (iout * 806) / navg;
+	//Convert sum of raw adc codes to average millivolts
+	iin = (iin * vdd) / (navg * 4096);
 
-	//Subtract zero offset
-	iout -= 80000;
+	//Subtract amplifier offset (datasheet says 80 mV typical but we measure more like 75)
+	//TODO: should this be a per unit cal factor?
+	iin -= 74;
 
-	//Now we have shunt voltage in uV
-	//1 amp / 100000 uV
-	//so 1000 mA / 100000 uV
-	//or 1 mA / 100 uV
-	return iout / 100;
+	//Convert zero-referenced shunt voltage back to current
+	return round(iin * 10);
 }
-*/
-
-/**
-	@brief Read a temperature sensor at the given I2C address and return the temperature (in 8.8 fixed point format)
- */
-uint16_t ReadThermalSensor(uint8_t addr)
-{
-	if(!g_i2c.BlockingWrite8(addr, 0x00))
-		return 0xff;
-	uint16_t reply;
-	if(!g_i2c.BlockingRead16(addr, reply))
-		return 0xff;
-
-	return reply;
-}
-

@@ -54,7 +54,6 @@ void IBCI2CServer::OnRequestRead()
 			SendReply16(GetSenseVoltage());
 			break;
 
-		/*
 		//Read input current
 		case IBC_REG_IIN:
 			SendReply16(GetInputCurrent());
@@ -64,7 +63,8 @@ void IBCI2CServer::OnRequestRead()
 		case IBC_REG_IOUT:
 			SendReply16(GetOutputCurrent());
 			break;
-		*/
+
+		//TODO: MCU temperature as well as dedicated sensor
 
 		//Read version string
 		case IBC_REG_VERSION:

@@ -56,9 +56,6 @@ ADC* g_adc = nullptr;
 //Firmware version string
 char g_version[20] = {0};
 
-const uint8_t g_tempI2cAddress = 0x90;
-uint16_t ReadThermalSensor(uint8_t addr = g_tempI2cAddress);
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Peripheral initialization
 
@@ -106,17 +103,6 @@ void InitI2C()
 
 	//Set our device address, somewhat arbitrarily, to 0x42
 	g_i2c.SetThisNodeAddress(0x42);
-
-	//Wait a little while for bus to initialize
-	g_logTimer.Sleep(100);
-
-	//Set temperature sensor to max resolution
-	uint8_t cmd[3] = {0x01, 0x60, 0x00};
-	if(!g_i2c.BlockingWrite(g_tempI2cAddress, cmd, sizeof(cmd)))
-		g_log(Logger::ERROR, "Failed to initialize I2C temp sensor at 0x%02x\n", g_tempI2cAddress);
-
-	//Sanity check the temp sensor
-	g_log("Temperature: %uhk C\n", ReadThermalSensor());
 }
 
 void InitADC()
@@ -128,13 +114,6 @@ void InitADC()
 	static ADC adc(&_ADC, &_ADC.chans[0], 10);
 	g_adc = &adc;
 	g_logTimer.Sleep(20);
-
-	/*
-	g_log("Zero calibration: %d\n", _ADC.chans[0].CALFACT);
-	g_log("Temp cal 1: %d\n", TSENSE_CAL1);
-	g_log("Temp cal 2: %d\n", TSENSE_CAL2);
-	g_log("Vref cal: %d\n", VREFINT_CAL);
-	*/
 
 	//Set up sampling time. Need minimum 5us to accurately read temperature
 	//With ADC clock of 8 MHz = 125 ns per cycle this is 40 cycles
