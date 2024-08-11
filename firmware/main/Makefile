@@ -34,10 +34,12 @@ all:
 	$(CXX) $(ROOTDIR)/stm32-cpp/src/cpu/*.* -c $(CXXFLAGS) || exit 1
 	$(CXX) $(ROOTDIR)/stm32-cpp/src/helpers/*.cpp -c $(CXXFLAGS) || exit 1
 	$(CXX) $(ROOTDIR)/common-embedded-platform/core/*.cpp -c $(CXXFLAGS) || exit 1
+	$(CXX) $(ROOTDIR)/embedded-cli/*.cpp -c $(CXXFLAGS) || exit 1
 	$(CXX) $(ROOTDIR)/firmware/bsp/*.cpp -c $(CXXFLAGS) || exit 1
 	$(CXX) $(CXXFLAGS) -c $(SRCDIR)/*.cpp || exit 1
 	$(CXX) $(CXXFLAGS) -c $(ROOTDIR)/microkvs/kvs/*.cpp || exit 1
 	$(CXX) $(CXXFLAGS) -c $(ROOTDIR)/microkvs/driver/STM32StorageBank.cpp || exit 1
+	$(CXX) $(ROOTDIR)/stm32-cpp/src/cli/*.cpp -c $(CXXFLAGS) || exit 1
 	$(CXX) $(ROOTDIR)/stm32-cpp/src/newlib-stubs/*.cpp -c $(CXXFLAGS) || exit 1
 	$(CXX) $(ROOTDIR)/stm32-cpp/src/peripheral/*.cpp -c $(CXXFLAGS) || exit 1
 	$(CXX) $(ROOTDIR)/stm32-cpp/devices/src/stm32l431.cpp -c $(CXXFLAGS) || exit 1

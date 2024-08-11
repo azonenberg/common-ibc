@@ -27,53 +27,53 @@
 *                                                                                                                      *
 ***********************************************************************************************************************/
 
-#ifndef ibc_h
-#define ibc_h
-
-#include <core/platform.h>
-
-#include <peripheral/ADC.h>
-#include <peripheral/I2C.h>
-
-#include <embedded-utils/FIFO.h>
-#include <embedded-utils/StringBuffer.h>
-
-#include <bootloader/BootloaderAPI.h>
-#include "../bsp/hwinit.h"
-
-#include <cli/UARTOutputStream.h>
-
-#include "IBCI2CServer.h"
+#include "ibc.h"
 #include "IBCCLISessionContext.h"
 
-void InitGPIOs();
-void InitI2C();
-void InitADC();
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Command IDs
 
-extern UART<16, 256> g_uart;
-extern I2C g_i2c;
-extern ADC* g_adc;
-extern char g_version[20];
-extern char g_hwversion[20];
+enum cmdid_t
+{
+	CMD_CAT
+};
 
-extern GPIOPin g_standbyLED;
-extern GPIOPin g_onLED;
-extern GPIOPin g_faultLED;
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Top level commands
 
-extern GPIOPin g_loadEnableSense;
-extern GPIOPin g_outEnableFromLoad;
-extern GPIOPin g_outEnableFromProtection;
+static const clikeyword_t g_rootCommands[] =
+{
+	{"cat",		CMD_CAT,			nullptr,	"meow" },
+	{nullptr,	INVALID_COMMAND,	nullptr,	nullptr }
+};
 
-uint16_t GetInputVoltage();
-uint16_t GetOutputVoltage();
-uint16_t GetSenseVoltage();
-uint16_t GetInputCurrent();
-uint16_t GetOutputCurrent();
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Construction / destruction
 
-void PrintSensorValues();
+IBCCLISessionContext::IBCCLISessionContext()
+	: CLISessionContext(g_rootCommands)
+{
+}
 
-extern uint16_t g_outputCurrentShuntOffset;
-extern IBCCLISessionContext g_localConsoleSessionContext;
-extern UARTOutputStream g_localConsoleOutputStream;
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Top level command dispatch
 
-#endif
+void IBCCLISessionContext::PrintPrompt()
+{
+	m_stream->Printf("%s@ibc# ", m_username);
+	m_stream->Flush();
+}
+
+void IBCCLISessionContext::OnExecute()
+{
+	switch(m_command[0].m_commandID)
+	{
+		case CMD_CAT:
+			m_stream->Printf("nyaa~\n");
+			break;
+
+		default:
+			m_stream->Printf("Unrecognized command\n");
+			break;
+	}
+}

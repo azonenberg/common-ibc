@@ -31,6 +31,12 @@
 #include "regids.h"
 #include <math.h>
 
+///@brief Output stream for local serial console
+UARTOutputStream g_localConsoleOutputStream;
+
+///@brief Session context for local serial console
+IBCCLISessionContext g_localConsoleSessionContext;
+
 void BSP_MainLoopIteration()
 {
 	const int logTimerMax = 60000;
@@ -56,23 +62,15 @@ void BSP_MainLoopIteration()
 	if(g_log.UpdateOffset(logTimerMax) && (next1HzTick >= logTimerMax) )
 		next1HzTick -= logTimerMax;
 
+	//Poll for UART input
+	if(g_uart.HasInput())
+		g_localConsoleSessionContext.OnKeystroke(g_uart.BlockingRead());
+
 	//1 Hz timer event
-	//static uint32_t nextHealthPrint = 0;
 	if(g_logTimer.GetCount() >= next1HzTick)
 	{
 		next1HzTick = g_logTimer.GetCount() + 10000;
-
-		//DEBUG: log sensor values
-		/*
-		if(nextHealthPrint == 0)
-		{
-			g_log("Health sensors\n");
-			LogIndenter li(g_log);
-			PrintSensorValues();
-			nextHealthPrint = 60;
-		}
-		nextHealthPrint --;
-		*/
+		//nothing to do in here for now
 	}
 
 	//Check for I2C activity
@@ -114,9 +112,8 @@ uint16_t GetOutputCurrent()
 {
 	float iout = g_adc->ReadChannelScaledAveraged(12, 32);
 
-	//Subtract amplifier offset (datasheet says 80 mV typical but we measure more like 75)
-	//TODO: should this be a per unit cal factor?
-	iout -= 74;
+	//Subtract amplifier offset (datasheet says 80 mV typical, but calibrate)
+	iout -= g_outputCurrentShuntOffset;
 
 	//Convert zero-referenced shunt voltage back to current
 	return round(iout * 10);

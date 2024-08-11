@@ -34,6 +34,7 @@
  */
 #include "ibc.h"
 #include "regids.h"
+#include <math.h>
 
 //Indicator LEDs
 GPIOPin g_standbyLED(&GPIOB, 12, GPIOPin::MODE_OUTPUT, GPIOPin::SLEW_SLOW);
@@ -62,11 +63,19 @@ char g_version[20] = {0};
 ///@brief Software version string
 char g_hwversion[20] = {0};
 
+void ZeroizeOffsets();
+
+//Offset voltage of the output current shunt
+uint16_t g_outputCurrentShuntOffset;
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Peripheral initialization
 
 void App_Init()
 {
+	//Turn off the output
+	g_outEnableFromProtection = 0;
+
 	RCCHelper::Enable(&_RTC);
 	InitGPIOs();
 	InitI2C();
@@ -87,7 +96,17 @@ void App_Init()
 		hbuf.Printf("0.4");
 	g_log("Hardware version %s\n", g_hwversion);
 
+	//Turn on our internal output enable (TODO: check protections)
+	g_outEnableFromProtection = 1;
+
 	g_log("Init complete, output turned off until start requested by host board\n");
+
+	//Initialize the local console
+	g_localConsoleOutputStream.Initialize(&g_uart);
+	g_localConsoleSessionContext.Initialize(&g_localConsoleOutputStream, "localadmin");
+
+	//Show the initial prompt
+	g_localConsoleSessionContext.PrintPrompt();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -106,9 +125,6 @@ void InitGPIOs()
 
 	//DEBUG: backfeed output enable from load to enable running without a smart load
 	//g_outEnableFromLoad = 1;
-
-	//Turn on our internal output enable (TODO: check protections)
-	g_outEnableFromProtection = 1;
 }
 
 void InitI2C()
@@ -140,7 +156,24 @@ void InitADC()
 	for(int i=0; i <= 18; i++)
 		adc.SetSampleTime(tsample, i);
 
+	//Perform initial offset zeroization (TODO)
+	ZeroizeOffsets();
+
 	PrintSensorValues();
+}
+
+void ZeroizeOffsets()
+{
+	g_log("Calculating current offsets\n");
+	LogIndenter li(g_log);
+
+	//Calculate zero value for 12V output channel
+	//This includes power drawn by 3V3_SB and 5V0_SB loads, which are not currently metered but should be tiny
+	//For now, assume this error is tiny compared to the PTV drift of the current shunt amps
+	//Long term idea: run the cal once on first power up, with no load connected?
+	g_outputCurrentShuntOffset = round(g_adc->ReadChannelScaledAveraged(12, 128));
+
+	g_log("12V0 output current shunt offset: %d mV\n", g_outputCurrentShuntOffset);
 }
 
 void PrintSensorValues()
@@ -160,8 +193,8 @@ void PrintSensorValues()
 	g_log("Output sense:    %2d.%03d V\n", vsense/1000, vsense % 1000);
 
 	auto iin = GetInputCurrent();
-	g_log("Input voltage:   %2d.%03d A\n", iin/1000, iin % 1000);
+	g_log("Input current:   %2d.%03d A\n", iin/1000, iin % 1000);
 
 	auto iout = GetOutputCurrent();
-	g_log("Output voltage:  %2d.%03d A\n", iout/1000, iout % 1000);
+	g_log("Output current:  %2d.%03d A\n", iout/1000, iout % 1000);
 }

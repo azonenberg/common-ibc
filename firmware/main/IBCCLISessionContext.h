@@ -27,53 +27,29 @@
 *                                                                                                                      *
 ***********************************************************************************************************************/
 
-#ifndef ibc_h
-#define ibc_h
+#ifndef IBCCLISessionContext_h
+#define IBCCLISessionContext_h
 
-#include <core/platform.h>
+#include <embedded-cli/CLIOutputStream.h>
+#include <embedded-cli/CLISessionContext.h>
 
-#include <peripheral/ADC.h>
-#include <peripheral/I2C.h>
+class IBCCLISessionContext : public CLISessionContext
+{
+public:
+	IBCCLISessionContext();
 
-#include <embedded-utils/FIFO.h>
-#include <embedded-utils/StringBuffer.h>
+	void Initialize(CLIOutputStream* stream, const char* username)
+	{
+		m_stream = stream;
+		CLISessionContext::Initialize(m_stream, username);
+	}
 
-#include <bootloader/BootloaderAPI.h>
-#include "../bsp/hwinit.h"
+	virtual void PrintPrompt() override;
 
-#include <cli/UARTOutputStream.h>
+protected:
+	virtual void OnExecute() override;
 
-#include "IBCI2CServer.h"
-#include "IBCCLISessionContext.h"
-
-void InitGPIOs();
-void InitI2C();
-void InitADC();
-
-extern UART<16, 256> g_uart;
-extern I2C g_i2c;
-extern ADC* g_adc;
-extern char g_version[20];
-extern char g_hwversion[20];
-
-extern GPIOPin g_standbyLED;
-extern GPIOPin g_onLED;
-extern GPIOPin g_faultLED;
-
-extern GPIOPin g_loadEnableSense;
-extern GPIOPin g_outEnableFromLoad;
-extern GPIOPin g_outEnableFromProtection;
-
-uint16_t GetInputVoltage();
-uint16_t GetOutputVoltage();
-uint16_t GetSenseVoltage();
-uint16_t GetInputCurrent();
-uint16_t GetOutputCurrent();
-
-void PrintSensorValues();
-
-extern uint16_t g_outputCurrentShuntOffset;
-extern IBCCLISessionContext g_localConsoleSessionContext;
-extern UARTOutputStream g_localConsoleOutputStream;
+	CLIOutputStream* m_stream;
+};
 
 #endif
