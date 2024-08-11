@@ -83,38 +83,24 @@ void BSP_MainLoopIteration()
 uint16_t GetInputVoltage()
 {
 	//48V rail is ADC1_IN7, 30.323x division
-	return round(g_adc->ReadChannelScaled(7) * 30.323);
+	return round(g_adc->ReadChannelScaledAveraged(7, 32) * 30.323);
 }
 
 uint16_t GetOutputVoltage()
 {
-	//read and throw out a value to wake up the ADC
-	g_adc->ReadChannel(9);
-
 	//12V rail output is ADC_IN9, 5.094x division
-	return round(g_adc->ReadChannelScaled(9) * 5.094);
+	return round(g_adc->ReadChannelScaledAveraged(9, 32) * 5.094);
 }
 
 uint16_t GetSenseVoltage()
 {
-	//read and throw out a value to wake up the ADC
-	g_adc->ReadChannel(5);
-
 	//12V remote sense (including cable loss) is ADC_IN5, 5.094x division
-	return round(g_adc->ReadChannelScaled(5) * 5.094);
+	return round(g_adc->ReadChannelScaledAveraged(5, 32) * 5.094);
 }
 
 uint16_t GetInputCurrent()
 {
-	//Integrate a few samples to denoise
-	const int navg = 32;
-	float iin = 0;
-	float vdd = g_adc->GetSupplyVoltage();
-	for(int i=0; i<navg; i++)
-		iin += g_adc->ReadChannel(6);
-
-	//Convert sum of raw adc codes to average millivolts
-	iin = (iin * vdd) / (navg * 4096);
+	float iin = g_adc->ReadChannelScaledAveraged(6, 32);
 
 	//Subtract amplifier offset (datasheet says 80 mV typical but we measure more like 75)
 	//TODO: should this be a per unit cal factor?
@@ -126,20 +112,12 @@ uint16_t GetInputCurrent()
 
 uint16_t GetOutputCurrent()
 {
-	//Integrate a few samples to denoise
-	const int navg = 32;
-	float iin = 0;
-	float vdd = g_adc->GetSupplyVoltage();
-	for(int i=0; i<navg; i++)
-		iin += g_adc->ReadChannel(12);
-
-	//Convert sum of raw adc codes to average millivolts
-	iin = (iin * vdd) / (navg * 4096);
+	float iout = g_adc->ReadChannelScaledAveraged(12, 32);
 
 	//Subtract amplifier offset (datasheet says 80 mV typical but we measure more like 75)
 	//TODO: should this be a per unit cal factor?
-	iin -= 74;
+	iout -= 74;
 
 	//Convert zero-referenced shunt voltage back to current
-	return round(iin * 10);
+	return round(iout * 10);
 }

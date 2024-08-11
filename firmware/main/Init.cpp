@@ -45,6 +45,9 @@ GPIOPin g_outEnableFromLoad(&GPIOH, 0, GPIOPin::MODE_INPUT, GPIOPin::SLEW_SLOW);
 GPIOPin g_outEnableFromProtection(&GPIOB, 10, GPIOPin::MODE_OUTPUT, GPIOPin::SLEW_SLOW);
 GPIOPin g_loadEnableSense(&GPIOB, 7, GPIOPin::MODE_INPUT, GPIOPin::SLEW_SLOW);
 
+//Hardware version straps
+GPIOPin g_hwVersionStrap(&GPIOB, 0, GPIOPin::MODE_INPUT, GPIOPin::SLEW_SLOW);
+
 //I2C2 defaults to running of APB clock (40 MHz)
 //Prescale by 4 to get 10 MHz
 //Divide by 100 after that to get 100 kHz
@@ -53,8 +56,11 @@ I2C g_i2c(&I2C2, 4, 100);
 //The ADC (can't be initialized before InitClocks() so can't be a global object)
 ADC* g_adc = nullptr;
 
-//Firmware version string
+///@brief Firmware version string
 char g_version[20] = {0};
+
+///@brief Software version string
+char g_hwversion[20] = {0};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Peripheral initialization
@@ -73,6 +79,14 @@ void App_Init()
 		__DATE__, buildtime[0], buildtime[1], buildtime[3], buildtime[4], buildtime[6], buildtime[7]);
 	g_log("Firmware version %s\n", g_version);
 
+	//Format hardware version string
+	StringBuffer hbuf(g_hwversion, sizeof(g_hwversion));
+	if(g_hwVersionStrap)
+		hbuf.Printf("0.5");
+	else
+		hbuf.Printf("0.4");
+	g_log("Hardware version %s\n", g_hwversion);
+
 	g_log("Init complete, output turned off until start requested by host board\n");
 }
 
@@ -82,6 +96,9 @@ void App_Init()
 void InitGPIOs()
 {
 	g_log("Initializing GPIOs\n");
+
+	//Version strap pins default low unless explicitly set high
+	g_hwVersionStrap.SetPullMode(GPIOPin::PULL_DOWN);
 
 	g_standbyLED = 1;
 	g_faultLED = 0;
@@ -141,4 +158,10 @@ void PrintSensorValues()
 
 	auto vsense = GetSenseVoltage();
 	g_log("Output sense:    %2d.%03d V\n", vsense/1000, vsense % 1000);
+
+	auto iin = GetInputCurrent();
+	g_log("Input voltage:   %2d.%03d A\n", iin/1000, iin % 1000);
+
+	auto iout = GetOutputCurrent();
+	g_log("Output voltage:  %2d.%03d A\n", iout/1000, iout % 1000);
 }

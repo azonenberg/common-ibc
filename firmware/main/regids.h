@@ -48,7 +48,11 @@ enum ibc_regid_t
 	IBC_REG_IIN			= 0x10,		//Input current (uint16_t mA)
 	IBC_REG_IOUT		= 0x11,		//Output current (uint16_t mA)
 
-	IBC_REG_VERSION		= 0x20,		//Version string (20 bytes ASCII)
+	IBC_REG_3V3_SB		= 0x17,		//MCU 3V3_SB voltage (uint16_t mV)
+	IBC_REG_MCU_TEMP	= 0x18,		//MCU temperature (8.8 fixed point C)
+
+	IBC_REG_VERSION		= 0x20,		//Software version string (20 bytes ASCII)
+	IBC_REG_HW_VERSION	= 0x21,		//Hardware version string (20 bytes ASCII)
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Commands in 80-ff reserved for the bootloader (or entry to it)

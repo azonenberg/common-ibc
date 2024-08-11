@@ -64,12 +64,26 @@ void IBCI2CServer::OnRequestRead()
 			SendReply16(GetOutputCurrent());
 			break;
 
-		//TODO: MCU temperature as well as dedicated sensor
+		//Read internal MCU supply voltage
+		case IBC_REG_3V3_SB:
+			SendReply16(g_adc->GetSupplyVoltage());
+			break;
 
-		//Read version string
+		//Read internal MCU temp sensor
+		case IBC_REG_MCU_TEMP:
+			SendReply16(g_adc->GetTemperature());
+			break;
+
+		//Read software version string
 		case IBC_REG_VERSION:
 			for(size_t i=0; i<sizeof(g_version); i++)
 				SendReply8(g_version[i]);
+			break;
+
+		//Read hardware version string
+		case IBC_REG_HW_VERSION:
+			for(size_t i=0; i<sizeof(g_hwversion); i++)
+				SendReply8(g_hwversion[i]);
 			break;
 
 		default:

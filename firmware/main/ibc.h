@@ -51,6 +51,7 @@ extern UART<16, 256> g_uart;
 extern I2C g_i2c;
 extern ADC* g_adc;
 extern char g_version[20];
+extern char g_hwversion[20];
 
 extern GPIOPin g_standbyLED;
 extern GPIOPin g_onLED;
