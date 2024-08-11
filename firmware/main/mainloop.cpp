@@ -98,23 +98,12 @@ uint16_t GetSenseVoltage()
 
 uint16_t GetInputCurrent()
 {
-	float iin = g_adc->ReadChannelScaledAveraged(6, 32);
-
-	//Subtract amplifier offset (datasheet says 80 mV typical but we measure more like 75)
-	//TODO: should this be a per unit cal factor?
-	iin -= 74;
-
-	//Convert zero-referenced shunt voltage back to current
-	return round(iin * 2);
+	float vshunt = g_adc->ReadChannelScaledAveraged(ADC_CHANNEL_INPUT_CURRENT, 32);
+	return round( (vshunt * SHUNT_SCALE_INPUT_CURRENT) - g_inputCurrentShuntOffset );
 }
 
 uint16_t GetOutputCurrent()
 {
-	float iout = g_adc->ReadChannelScaledAveraged(12, 32);
-
-	//Subtract amplifier offset (datasheet says 80 mV typical, but calibrate)
-	iout -= g_outputCurrentShuntOffset;
-
-	//Convert zero-referenced shunt voltage back to current
-	return round(iout * 10);
+	float vshunt = g_adc->ReadChannelScaledAveraged(ADC_CHANNEL_OUTPUT_CURRENT, 32);
+	return round( (vshunt * SHUNT_SCALE_OUTPUT_CURRENT) - g_outputCurrentShuntOffset );
 }

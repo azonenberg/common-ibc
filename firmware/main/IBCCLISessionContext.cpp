@@ -29,13 +29,43 @@
 
 #include "ibc.h"
 #include "IBCCLISessionContext.h"
+#include <math.h>
+
+const char* g_iincalObjectName = "cal.iin";
+const char* g_ioutcalObjectName = "cal.iout";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Command IDs
 
 enum cmdid_t
 {
-	CMD_CAT
+	CMD_CALIBRATE,
+	CMD_CAT,
+	CMD_COMMIT,
+	CMD_IIN,
+	CMD_IOUT
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// "calibrate"
+
+static const clikeyword_t g_iincalCommands[] =
+{
+	{"<mA>",		FREEFORM_TOKEN,		nullptr,			"Externally measured 48V input current, in integer mA"},
+	{nullptr,		INVALID_COMMAND,	nullptr,			nullptr}
+};
+
+static const clikeyword_t g_ioutcalCommands[] =
+{
+	{"<mA>",		FREEFORM_TOKEN,		nullptr,			"Externally measured 12V output current, in integer mA"},
+	{nullptr,		INVALID_COMMAND,	nullptr,			nullptr}
+};
+
+static const clikeyword_t g_calibrateCommands[] =
+{
+	{"iin",			CMD_IIN,			g_iincalCommands,	"Input current" },
+	{"iout",		CMD_IOUT,			g_ioutcalCommands,	"Output current" },
+	{nullptr,		INVALID_COMMAND,	nullptr,			nullptr }
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -43,8 +73,10 @@ enum cmdid_t
 
 static const clikeyword_t g_rootCommands[] =
 {
-	{"cat",		CMD_CAT,			nullptr,	"meow" },
-	{nullptr,	INVALID_COMMAND,	nullptr,	nullptr }
+	{"calibrate",	CMD_CALIBRATE,		g_calibrateCommands,	"Calibrate ADCs" },
+	{"cat",			CMD_CAT,			nullptr,				"meow" },
+	{"commit",		CMD_COMMIT,			nullptr,				"Commit pending calibrations to flash" },
+	{nullptr,		INVALID_COMMAND,	nullptr,				nullptr }
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -68,12 +100,95 @@ void IBCCLISessionContext::OnExecute()
 {
 	switch(m_command[0].m_commandID)
 	{
+		case CMD_CALIBRATE:
+			OnCalibrate();
+			break;
+
 		case CMD_CAT:
 			m_stream->Printf("nyaa~\n");
+			break;
+
+		case CMD_COMMIT:
+			OnCommit();
 			break;
 
 		default:
 			m_stream->Printf("Unrecognized command\n");
 			break;
 	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// "calibrate"
+
+void IBCCLISessionContext::OnCalibrate()
+{
+	switch(m_command[1].m_commandID)
+	{
+		case CMD_IIN:
+			OnCalibrateInputCurrent();
+			break;
+
+		case CMD_IOUT:
+			OnCalibrateOutputCurrent();
+			break;
+
+		default:
+			break;
+	}
+}
+
+void IBCCLISessionContext::OnCalibrateInputCurrent()
+{
+	m_stream->Printf("Calibrating input current\n");
+
+	//Baseline
+	int16_t expected = atoi(m_command[2].m_text);
+	m_stream->Printf("    Expected:     %d mA\n", expected);
+
+	//Measured value with no calibration
+	int16_t measured = round(
+		g_adc->ReadChannelScaledAveraged(ADC_CHANNEL_INPUT_CURRENT, 128) *
+		SHUNT_SCALE_INPUT_CURRENT);
+	m_stream->Printf("    Uncalibrated: %d mA\n", measured);
+
+	//Calculate the cal coefficient
+	g_inputCurrentShuntOffset = measured - expected;
+	m_stream->Printf("    Offset:       %d mA\n", g_inputCurrentShuntOffset);
+
+	//Re-measure to confirm it's good
+	int16_t remeasured = GetInputCurrent();
+	m_stream->Printf("    Calibrated:   %d mA\n", remeasured);
+}
+
+void IBCCLISessionContext::OnCalibrateOutputCurrent()
+{
+	m_stream->Printf("Calibrating output current\n");
+
+	//Baseline
+	int16_t expected = atoi(m_command[2].m_text);
+	m_stream->Printf("    Expected:     %d mA\n", expected);
+
+	//Measured value with no calibration
+	int16_t measured = round(
+		g_adc->ReadChannelScaledAveraged(ADC_CHANNEL_OUTPUT_CURRENT, 128) *
+		SHUNT_SCALE_OUTPUT_CURRENT);
+	m_stream->Printf("    Uncalibrated: %d mA\n", measured);
+
+	//Calculate the cal coefficient
+	g_outputCurrentShuntOffset = measured - expected;
+	m_stream->Printf("    Offset:       %d mA\n", g_outputCurrentShuntOffset);
+
+	//Re-measure to confirm it's good
+	int16_t remeasured = GetOutputCurrent();
+	m_stream->Printf("    Calibrated:   %d mA\n", remeasured);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// "commit"
+
+void IBCCLISessionContext::OnCommit()
+{
+	g_kvs->StoreObjectIfNecessary(g_inputCurrentShuntOffset, (uint16_t)0, g_iincalObjectName);
+	g_kvs->StoreObjectIfNecessary(g_outputCurrentShuntOffset, (uint16_t)0, g_ioutcalObjectName);
 }

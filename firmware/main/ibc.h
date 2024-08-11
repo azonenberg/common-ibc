@@ -72,8 +72,24 @@ uint16_t GetOutputCurrent();
 
 void PrintSensorValues();
 
+extern uint16_t g_inputCurrentShuntOffset;
 extern uint16_t g_outputCurrentShuntOffset;
+
 extern IBCCLISessionContext g_localConsoleSessionContext;
 extern UARTOutputStream g_localConsoleOutputStream;
+
+//ADC channels
+enum adc_channel_index
+{
+	ADC_CHANNEL_INPUT_CURRENT	= 6,
+	ADC_CHANNEL_OUTPUT_CURRENT	= 12
+};
+
+//ADC scale factors
+#define SHUNT_SCALE_INPUT_CURRENT 2
+#define SHUNT_SCALE_OUTPUT_CURRENT 10
+
+extern const char* g_iincalObjectName;
+extern const char* g_ioutcalObjectName;
 
 #endif

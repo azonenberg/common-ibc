@@ -66,7 +66,8 @@ char g_hwversion[20] = {0};
 void ZeroizeOffsets();
 
 //Offset voltage of the output current shunt
-uint16_t g_outputCurrentShuntOffset;
+uint16_t g_outputCurrentShuntOffset = 0;
+uint16_t g_inputCurrentShuntOffset = 0;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Peripheral initialization
@@ -156,24 +157,31 @@ void InitADC()
 	for(int i=0; i <= 18; i++)
 		adc.SetSampleTime(tsample, i);
 
-	//Perform initial offset zeroization (TODO)
-	ZeroizeOffsets();
+	//Load ADC cal coefficient
+	g_inputCurrentShuntOffset = g_kvs->ReadObject<uint16_t>(0, g_iincalObjectName);
+	g_outputCurrentShuntOffset = g_kvs->ReadObject<uint16_t>(0, g_ioutcalObjectName);
+
+	//First boot, no cal coefficients? Warn
+	//(amplifiers typically have ~80 mV offset, so cal coefficient should never be zero if valid)
+	if(g_inputCurrentShuntOffset == 0)
+	{
+		g_log(
+			Logger::WARNING,
+			"No calibration data found for input current shunt amplifier, readings will be inaccurate\n");
+	}
+	else
+		g_log("Input current shunt offset:  %d mA\n", g_inputCurrentShuntOffset);
+
+	if(g_outputCurrentShuntOffset == 0)
+	{
+		g_log(
+			Logger::WARNING,
+			"No calibration data found for input current shunt amplifier, readings will be inaccurate\n");
+	}
+	else
+		g_log("Output current shunt offset: %d mA\n", g_outputCurrentShuntOffset);
 
 	PrintSensorValues();
-}
-
-void ZeroizeOffsets()
-{
-	g_log("Calculating current offsets\n");
-	LogIndenter li(g_log);
-
-	//Calculate zero value for 12V output channel
-	//This includes power drawn by 3V3_SB and 5V0_SB loads, which are not currently metered but should be tiny
-	//For now, assume this error is tiny compared to the PTV drift of the current shunt amps
-	//Long term idea: run the cal once on first power up, with no load connected?
-	g_outputCurrentShuntOffset = round(g_adc->ReadChannelScaledAveraged(12, 128));
-
-	g_log("12V0 output current shunt offset: %d mV\n", g_outputCurrentShuntOffset);
 }
 
 void PrintSensorValues()

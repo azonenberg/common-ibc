@@ -30,7 +30,6 @@
 #include <core/platform.h>
 #include <bootloader/bootloader-common.h>
 #include <bootloader/BootloaderAPI.h>
-#include <microkvs/driver/STM32StorageBank.h>
 #include <algorithm>
 #include "../bsp/hwinit.h"
 
@@ -50,14 +49,7 @@ const uint32_t g_appVersionOffset = 0x1a0;
 
 void Bootloader_Init()
 {
-	/**
-		@brief Use sectors 126 and 127 of flash for a for a 2 kB microkvs
 
-		TODO: support multiple sectors since 2 kB is a little small?
-	 */
-	static STM32StorageBank left(reinterpret_cast<uint8_t*>(0x0803f000), 0x800);
-	static STM32StorageBank right(reinterpret_cast<uint8_t*>(0x0803f800), 0x800);
-	InitKVS(&left, &right, 32);
 }
 
 void Bootloader_ClearRxBuffer()

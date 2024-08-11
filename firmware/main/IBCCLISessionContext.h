@@ -49,6 +49,12 @@ public:
 protected:
 	virtual void OnExecute() override;
 
+	void OnCalibrate();
+	void OnCalibrateInputCurrent();
+	void OnCalibrateOutputCurrent();
+
+	void OnCommit();
+
 	CLIOutputStream* m_stream;
 };
 
