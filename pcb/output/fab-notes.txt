@@ -1,4 +1,4 @@
-Part number:       common-ibc v0.4
+Part number:       common-ibc v0.5
 
 General fabrication notes
 
@@ -10,13 +10,12 @@ General fabrication notes
     * White silkscreen text on both sides of board.
     * Pad finish is ENIG.
     * Finished board thickness is 1.6 mm.
-    * Place UL mark and date code in the area marked on the "F. Fab" gerber layer.
+    * Place UL mark and date code in the area marked on the "B. Fab" gerber layer.
 
 File naming
     common-ibc-Edge_Cuts.gbr   Board outline
     common-ibc.drl             Through-board plated holes
     common-ibc-F_SilkS.gbr     Front silkscreen
-    common-ibc-F.Fab.gbr       Shows requested location of date code and UL marking
     common-ibc-F_Mask.gbr      Front solder mask
     common-ibc-F_Cu.gbr        Layer 1 copper
     common-ibc-In1_Cu.gbr      Layer 2 copper
@@ -24,4 +23,5 @@ File naming
     common-ibc-B_Cu.gbr        Layer 4 copper
     common-ibc-B_Mask.gbr      Back solder mask
     common-ibc-B_SilkS.gbr     Back silkscreen
+    common-ibc-B.Fab.gbr       Shows requested location of date code and UL marking
     common-ibc.d356            Electrical test netlist

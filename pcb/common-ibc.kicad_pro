@@ -58,7 +58,11 @@
           "width": 0.0
         }
       ],
-      "drc_exclusions": [],
+      "drc_exclusions": [
+        "silk_over_copper|76000000|28200000|d206a5a9-83ca-4fe2-b2ca-c0e918ea994a|00000000-0000-0000-0000-000000000000",
+        "silk_over_copper|76998639|68451419|b237f289-1613-4b35-9806-5c11dfc3a0bd|00000000-0000-0000-0000-000000000000",
+        "silk_over_copper|89050000|27500000|f9c1383e-af85-46ad-85c2-23cd45d2ab7b|00000000-0000-0000-0000-000000000000"
+      ],
       "meta": {
         "version": 2
       },
@@ -236,7 +240,9 @@
     "equivalence_files": []
   },
   "erc": {
-    "erc_exclusions": [],
+    "erc_exclusions": [
+      "pin_to_pin|2209800|2400300|58eca181-7dce-4f10-9b48-8c10398648b7|d3d3c404-64b3-47db-a774-401de36e989b|/20bfa5a1-b612-414f-859c-0b0904e97a2e|/20bfa5a1-b612-414f-859c-0b0904e97a2e|/20bfa5a1-b612-414f-859c-0b0904e97a2e"
+    ],
     "meta": {
       "version": 0
     },
