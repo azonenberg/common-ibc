@@ -36,8 +36,14 @@
 #include <bootloader/bootloader-common.h>
 #include <bootloader/BootloaderAPI.h>
 #include "hwinit.h"
+#include <peripheral/DWT.h>
+#include <peripheral/ITM.h>
 #include <peripheral/Power.h>
 #include <microkvs/driver/STM32StorageBank.h>
+
+#ifdef _DEBUG
+void InitTrace();
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Common global hardware config used by both bootloader and application
@@ -111,6 +117,10 @@ void BSP_InitLog()
 
 void BSP_Init()
 {
+	#ifdef _DEBUG
+	InitTrace();
+	#endif
+
 	/**
 		@brief Use sectors 126 and 127 of flash for a for a 2 kB microkvs
 
@@ -122,3 +132,17 @@ void BSP_Init()
 
 	App_Init();
 }
+
+#ifdef _DEBUG
+void InitTrace()
+{
+	//Enable ITM, enable PC sampling, and turn on forwarding to the TPIU
+	ITM::Enable();
+	DWT::EnablePCSampling(DWT::PC_SAMPLE_SLOW);
+	ITM::EnableDwtForwarding();
+
+	//Turn on ITM stimulus channel 0 for temperature logging
+	//ITM::EnableChannel(0);
+}
+#endif
+

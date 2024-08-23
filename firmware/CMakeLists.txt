@@ -17,8 +17,14 @@ include("${PROJECT_ROOT}/common-embedded-platform/boilerplate.cmake")
 set(TARGET_MCU stm32l431)
 include("${PROJECT_ROOT}/stm32-cpp/build/${TARGET_MCU}.cmake")
 
+set(CEP_BUILD_SERVICES 0)
+
 # Include paths
-include_directories(${CMAKE_SOURCE_DIR} ${PROJECT_ROOT})
+include_directories(
+	${CMAKE_SOURCE_DIR}
+	${PROJECT_ROOT}
+	${PROJECT_ROOT}/etl/include
+	)
 
 ########################################################################################################################
 # Build all of our other dependencies
