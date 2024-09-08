@@ -176,7 +176,7 @@ void InitADC()
 	{
 		g_log(
 			Logger::WARNING,
-			"No calibration data found for input current shunt amplifier, readings will be inaccurate\n");
+			"No calibration data found for output current shunt amplifier, readings will be inaccurate\n");
 	}
 	else
 		g_log("Output current shunt offset: %d mA\n", g_outputCurrentShuntOffset);
