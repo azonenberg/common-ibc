@@ -42,8 +42,11 @@ enum cmdid_t
 	CMD_CALIBRATE,
 	CMD_CAT,
 	CMD_COMMIT,
+	CMD_FORCEON,
 	CMD_IIN,
-	CMD_IOUT
+	CMD_IOUT,
+	CMD_NORMAL,
+	CMD_OUTPUT
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -69,6 +72,16 @@ static const clikeyword_t g_calibrateCommands[] =
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// "output"
+
+static const clikeyword_t g_outputCommands[] =
+{
+	{"forceon",		CMD_FORCEON,		nullptr,			"Force the output on by backfeeding the enable line" },
+	{"normal",		CMD_NORMAL,			nullptr,			"Normal operation" },
+	{nullptr,		INVALID_COMMAND,	nullptr,			nullptr }
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Top level commands
 
 static const clikeyword_t g_rootCommands[] =
@@ -76,6 +89,7 @@ static const clikeyword_t g_rootCommands[] =
 	{"calibrate",	CMD_CALIBRATE,		g_calibrateCommands,	"Calibrate ADCs" },
 	{"cat",			CMD_CAT,			nullptr,				"meow" },
 	{"commit",		CMD_COMMIT,			nullptr,				"Commit pending calibrations to flash" },
+	{"output",		CMD_OUTPUT,			g_outputCommands,		"Control output" },
 	{nullptr,		INVALID_COMMAND,	nullptr,				nullptr }
 };
 
@@ -110,6 +124,10 @@ void IBCCLISessionContext::OnExecute()
 
 		case CMD_COMMIT:
 			OnCommit();
+			break;
+
+		case CMD_OUTPUT:
+			OnOutput();
 			break;
 
 		default:
@@ -191,4 +209,25 @@ void IBCCLISessionContext::OnCommit()
 {
 	g_kvs->StoreObjectIfNecessary(g_inputCurrentShuntOffset, (uint16_t)0, g_iincalObjectName);
 	g_kvs->StoreObjectIfNecessary(g_outputCurrentShuntOffset, (uint16_t)0, g_ioutcalObjectName);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// "output"
+
+void IBCCLISessionContext::OnOutput()
+{
+	switch(m_command[1].m_commandID)
+	{
+		case CMD_FORCEON:
+			g_outEnableFromLoad.SetMode(GPIOPin::MODE_OUTPUT, 0);
+			g_outEnableFromLoad = 1;
+			break;
+
+		case CMD_NORMAL:
+			g_outEnableFromLoad.SetMode(GPIOPin::MODE_INPUT, 0);
+			break;
+
+		default:
+			break;
+	}
 }

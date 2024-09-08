@@ -52,6 +52,7 @@ protected:
 	void OnCalibrate();
 	void OnCalibrateInputCurrent();
 	void OnCalibrateOutputCurrent();
+	void OnOutput();
 
 	void OnCommit();
 
