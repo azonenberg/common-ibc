@@ -34,6 +34,12 @@
 const char* g_iincalObjectName = "cal.iin";
 const char* g_ioutcalObjectName = "cal.iout";
 
+//self contained operation for active-load testing, no host board connected
+//(meaning it's OK to use the I2C interface as a master with no arbitration or anything)
+bool g_freestandingMode = false;
+
+const uint8_t g_tempI2cAddress = 0x90;
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Command IDs
 
@@ -175,7 +181,7 @@ void IBCCLISessionContext::OnCalibrateInputCurrent()
 	m_stream->Printf("    Offset:       %d mA\n", g_inputCurrentShuntOffset);
 
 	//Re-measure to confirm it's good
-	int16_t remeasured = GetInputCurrent();
+	int16_t remeasured = g_i2cServer->GetInputCurrent();
 	m_stream->Printf("    Calibrated:   %d mA\n", remeasured);
 }
 
@@ -198,7 +204,7 @@ void IBCCLISessionContext::OnCalibrateOutputCurrent()
 	m_stream->Printf("    Offset:       %d mA\n", g_outputCurrentShuntOffset);
 
 	//Re-measure to confirm it's good
-	int16_t remeasured = GetOutputCurrent();
+	int16_t remeasured = g_i2cServer->GetOutputCurrent();
 	m_stream->Printf("    Calibrated:   %d mA\n", remeasured);
 }
 
@@ -219,12 +225,21 @@ void IBCCLISessionContext::OnOutput()
 	switch(m_command[1].m_commandID)
 	{
 		case CMD_FORCEON:
-			g_outEnableFromLoad.SetMode(GPIOPin::MODE_OUTPUT, 0);
-			g_outEnableFromLoad = 1;
+			{
+				g_outEnableFromLoad.SetMode(GPIOPin::MODE_OUTPUT, 0);
+				g_outEnableFromLoad = 1;
+				g_freestandingMode = true;
+
+				//Initialize the temp sensor
+				uint8_t cmd[3] = {0x01, 0x60, 0x00};
+				if(g_i2c.BlockingWrite(g_tempI2cAddress, cmd, sizeof(cmd)))
+					break;
+			}
 			break;
 
 		case CMD_NORMAL:
 			g_outEnableFromLoad.SetMode(GPIOPin::MODE_INPUT, 0);
+			g_freestandingMode = false;
 			break;
 
 		default:

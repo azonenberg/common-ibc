@@ -2,7 +2,8 @@ add_executable(main
 	IBCCLISessionContext.cpp
 	IBCI2CServer.cpp
 	Init.cpp
-	mainloop.cpp
+	OneHzTimerTask.cpp
+	TwoHzTimerTask.cpp
 	vectors.cpp)
 
 target_link_options(main

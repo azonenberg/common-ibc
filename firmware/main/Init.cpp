@@ -35,6 +35,9 @@
 #include "ibc.h"
 #include "regids.h"
 #include <math.h>
+#include "OneHzTimerTask.h"
+#include "TwoHzTimerTask.h"
+#include "LocalConsoleTask.h"
 
 //Indicator LEDs
 GPIOPin g_standbyLED(&GPIOB, 12, GPIOPin::MODE_OUTPUT, GPIOPin::SLEW_SLOW);
@@ -68,6 +71,8 @@ void ZeroizeOffsets();
 //Offset voltage of the output current shunt
 uint16_t g_outputCurrentShuntOffset = 0;
 uint16_t g_inputCurrentShuntOffset = 0;
+
+IBCI2CServer* g_i2cServer = nullptr;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Peripheral initialization
@@ -103,11 +108,18 @@ void App_Init()
 	g_log("Init complete, output turned off until start requested by host board\n");
 
 	//Initialize the local console
-	g_localConsoleOutputStream.Initialize(&g_uart);
-	g_localConsoleSessionContext.Initialize(&g_localConsoleOutputStream, "localadmin");
+	static LocalConsoleTask localConsoleTask;
+	g_tasks.push_back(&localConsoleTask);
 
-	//Show the initial prompt
-	g_localConsoleSessionContext.PrintPrompt();
+	//10 kHz ticks so 10K ticks = 1 sec
+	static OneHzTimerTask timerTask(0, 10 * 1000);
+	g_tasks.push_back(&timerTask);
+	g_timerTasks.push_back(&timerTask);
+
+	//10 kHz ticks so 5K ticks = 0.5s
+	static TwoHzTimerTask timerTask2(0, 10 * 500);
+	g_tasks.push_back(&timerTask2);
+	g_timerTasks.push_back(&timerTask2);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -123,9 +135,6 @@ void InitGPIOs()
 	g_standbyLED = 1;
 	g_faultLED = 0;
 	g_onLED = 0;
-
-	//DEBUG: backfeed output enable from load to enable running without a smart load
-	//g_outEnableFromLoad = 1;
 }
 
 void InitI2C()
@@ -137,6 +146,10 @@ void InitI2C()
 
 	//Set our device address, somewhat arbitrarily, to 0x42
 	g_i2c.SetThisNodeAddress(0x42);
+
+	static IBCI2CServer server(g_i2c);
+	g_i2cServer = &server;
+	g_tasks.push_back(&server);
 }
 
 void InitADC()
@@ -191,18 +204,18 @@ void PrintSensorValues()
 	auto vdd = g_adc->GetSupplyVoltage();
 	g_log("Supply voltage:  %2d.%03d V\n", vdd/1000, vdd % 1000);
 
-	auto vin = GetInputVoltage();
+	auto vin = g_i2cServer->GetInputVoltage();
 	g_log("Input voltage:   %2d.%03d V\n", vin/1000, vin % 1000);
 
-	auto vout = GetOutputVoltage();
+	auto vout = g_i2cServer->GetOutputVoltage();
 	g_log("Output voltage:  %2d.%03d V\n", vout/1000, vout % 1000);
 
-	auto vsense = GetSenseVoltage();
+	auto vsense = g_i2cServer->GetSenseVoltage();
 	g_log("Output sense:    %2d.%03d V\n", vsense/1000, vsense % 1000);
 
-	auto iin = GetInputCurrent();
+	auto iin = g_i2cServer->GetInputCurrent();
 	g_log("Input current:   %2d.%03d A\n", iin/1000, iin % 1000);
 
-	auto iout = GetOutputCurrent();
+	auto iout = g_i2cServer->GetOutputCurrent();
 	g_log("Output current:  %2d.%03d A\n", iout/1000, iout % 1000);
 }

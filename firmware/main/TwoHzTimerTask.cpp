@@ -27,60 +27,63 @@
 *                                                                                                                      *
 ***********************************************************************************************************************/
 
-#ifndef IBCI2CServer_h
-#define IBCI2CServer_h
+#include "ibc.h"
+#include "TwoHzTimerTask.h"
 
-#include <helpers/I2CServer.h>
-#include <math.h>
-
-#define ADC_VAVG 8
-#define ADC_IAVG 128
-
-class IBCI2CServer
-	: public I2CServer
-	, public Task
+void TwoHzTimerTask::OnTimer()
 {
-public:
-	IBCI2CServer(I2C& i2c)
-		: I2CServer(i2c)
-	{}
+#ifdef _DEBUG
+	static ITMStream sensorStream(0);
 
-	virtual void Iteration()
-	{ Poll(); }
+	sensorStream.Printf(
+		"CSV-NAME,"
+		"VIN,IIN,MCUTEMP,CPTEMP,VOUT,IOUT,VSENSE,3V3_SB"
+		"\n"
+		);
 
-	uint16_t GetInputVoltage()
+	sensorStream.Printf(
+		"CSV-UNIT,"
+		"V,A,°C,°C,V,A,V,V"
+		"\n"
+		);
+
+	uint16_t vin = g_i2cServer->GetInputVoltage();
+	uint16_t iin = g_i2cServer->GetInputCurrent();
+	uint16_t mcutemp = g_adc->GetTemperature();
+	uint16_t cptemp = 0;
+	uint16_t vsense = g_i2cServer->GetSenseVoltage();
+	uint16_t vout = g_i2cServer->GetOutputVoltage();
+	uint16_t iout = g_i2cServer->GetOutputCurrent();
+	uint16_t v3v3 = g_adc->GetSupplyVoltage();
+
+	if(g_freestandingMode)
 	{
-		//48V rail is ADC1_IN7, 30.323x division
-		return round(g_adc->ReadChannelScaledAveraged(7, ADC_VAVG, 3300) * 30.323);
+		uint8_t regid = 0;
+		g_i2c.BlockingWrite(g_tempI2cAddress, &regid, 1);
+		g_i2c.BlockingRead(g_tempI2cAddress, (uint8_t*)&cptemp, sizeof(cptemp));
+		cptemp = __builtin_bswap16(cptemp);
 	}
 
-	uint16_t GetOutputVoltage()
-	{
-		//12V rail output is ADC_IN9, 5.094x division
-		return round(g_adc->ReadChannelScaledAveraged(9, ADC_VAVG, 3300) * 5.094);
-	}
-
-	uint16_t GetSenseVoltage()
-	{
-		//12V remote sense (including cable loss) is ADC_IN5, 5.094x division
-		return round(g_adc->ReadChannelScaledAveraged(5, ADC_VAVG, 3300) * 5.094);
-	}
-
-	uint16_t GetInputCurrent()
-	{
-		float vshunt = g_adc->ReadChannelScaledMedian(ADC_CHANNEL_INPUT_CURRENT, ADC_IAVG, 3300);
-		return round( (vshunt * SHUNT_SCALE_INPUT_CURRENT) - g_inputCurrentShuntOffset );
-	}
-
-	uint16_t GetOutputCurrent()
-	{
-		float vshunt = g_adc->ReadChannelScaledMedian(ADC_CHANNEL_OUTPUT_CURRENT, ADC_IAVG, 3300);
-		return round( (vshunt * SHUNT_SCALE_OUTPUT_CURRENT) - g_outputCurrentShuntOffset );
-	}
-
-protected:
-	virtual void OnRequestStart() override;
-	virtual void OnRequestRead() override;
-};
-
+	sensorStream.Printf(
+		"CSV-DATA,"
+		"%d.%03d,"
+		"%d.%03d,"
+		"%uhk,"
+		"%uhk,"
+		"%d.%03d,"
+		"%d.%03d,"
+		"%d.%03d,"
+		"%d.%03d"
+		"\n",
+		vin / 1000, vin % 1000,
+		iin / 1000, iin % 1000,
+		mcutemp,
+		cptemp,
+		vout / 1000, vout % 1000,
+		iout / 1000, iout % 1000,
+		vsense / 1000, vsense % 1000,
+		v3v3 / 1000, v3v3 % 1000
+		);
 #endif
+}
+

@@ -17,6 +17,10 @@ include("${PROJECT_ROOT}/common-embedded-platform/boilerplate.cmake")
 set(TARGET_MCU stm32l431)
 include("${PROJECT_ROOT}/stm32-cpp/build/${TARGET_MCU}.cmake")
 
+# Number of tasks we support
+add_compile_definitions(MAX_TASKS=5)
+add_compile_definitions(MAX_TIMER_TASKS=2)
+
 set(CEP_BUILD_SERVICES 0)
 
 # Include paths

@@ -27,60 +27,39 @@
 *                                                                                                                      *
 ***********************************************************************************************************************/
 
-#ifndef IBCI2CServer_h
-#define IBCI2CServer_h
+#ifndef OutputEnableTask_h
+#define OutputEnableTask_h
 
-#include <helpers/I2CServer.h>
-#include <math.h>
+#include <core/Task.h>
 
-#define ADC_VAVG 8
-#define ADC_IAVG 128
-
-class IBCI2CServer
-	: public I2CServer
-	, public Task
+class OutputEnableTask : public Task
 {
 public:
-	IBCI2CServer(I2C& i2c)
-		: I2CServer(i2c)
+	OutputEnableTask()
+		: m_loadRequestOn(false)
 	{}
 
 	virtual void Iteration()
-	{ Poll(); }
-
-	uint16_t GetInputVoltage()
 	{
-		//48V rail is ADC1_IN7, 30.323x division
-		return round(g_adc->ReadChannelScaledAveraged(7, ADC_VAVG, 3300) * 30.323);
-	}
+		bool enableRequest = g_outEnableFromLoad;
+		if(enableRequest != m_loadRequestOn)
+		{
+			if(enableRequest)
+				g_log("Output enabled by host board\n");
+			else
+				g_log("Output disabled by host board\n");
 
-	uint16_t GetOutputVoltage()
-	{
-		//12V rail output is ADC_IN9, 5.094x division
-		return round(g_adc->ReadChannelScaledAveraged(9, ADC_VAVG, 3300) * 5.094);
-	}
+			m_loadRequestOn = enableRequest;
 
-	uint16_t GetSenseVoltage()
-	{
-		//12V remote sense (including cable loss) is ADC_IN5, 5.094x division
-		return round(g_adc->ReadChannelScaledAveraged(5, ADC_VAVG, 3300) * 5.094);
-	}
-
-	uint16_t GetInputCurrent()
-	{
-		float vshunt = g_adc->ReadChannelScaledMedian(ADC_CHANNEL_INPUT_CURRENT, ADC_IAVG, 3300);
-		return round( (vshunt * SHUNT_SCALE_INPUT_CURRENT) - g_inputCurrentShuntOffset );
-	}
-
-	uint16_t GetOutputCurrent()
-	{
-		float vshunt = g_adc->ReadChannelScaledMedian(ADC_CHANNEL_OUTPUT_CURRENT, ADC_IAVG, 3300);
-		return round( (vshunt * SHUNT_SCALE_OUTPUT_CURRENT) - g_outputCurrentShuntOffset );
+			//Make output-enable LED track the actual load power enable state
+			g_onLED = enableRequest;
+		}
 	}
 
 protected:
-	virtual void OnRequestStart() override;
-	virtual void OnRequestRead() override;
+	bool m_loadRequestOn;
 };
 
 #endif
+
+

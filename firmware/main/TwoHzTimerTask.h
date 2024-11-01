@@ -27,83 +27,21 @@
 *                                                                                                                      *
 ***********************************************************************************************************************/
 
-#include "ibc.h"
-#include "regids.h"
-#include <math.h>
+#ifndef TwoHzTimerTask_h
+#define TwoHzTimerTask_h
 
-///@brief Output stream for local serial console
-UARTOutputStream g_localConsoleOutputStream;
+#include <core/TimerTask.h>
 
-///@brief Session context for local serial console
-IBCCLISessionContext g_localConsoleSessionContext;
-
-void BSP_MainLoopIteration()
+class TwoHzTimerTask : public TimerTask
 {
-	const int logTimerMax = 60000;
-	static uint32_t next1HzTick = 0;
+public:
+	TwoHzTimerTask(uint32_t initialOffset, uint32_t period)
+		: TimerTask(initialOffset, period)
+	{}
 
-	//Check for output enable toggles
-	static bool loadRequestOn = false;
-	bool enableRequest = g_outEnableFromLoad;
-	if(enableRequest != loadRequestOn)
-	{
-		if(enableRequest)
-			g_log("Output enabled by host board\n");
-		else
-			g_log("Output disabled by host board\n");
+protected:
+	virtual void OnTimer();
+};
 
-		loadRequestOn = enableRequest;
+#endif
 
-		//Make output-enable LED track the actual load power enable state
-		g_onLED = enableRequest;
-	}
-
-	//Check for overflows on our log message timer
-	if(g_log.UpdateOffset(logTimerMax) && (next1HzTick >= logTimerMax) )
-		next1HzTick -= logTimerMax;
-
-	//Poll for UART input
-	if(g_uart.HasInput())
-		g_localConsoleSessionContext.OnKeystroke(g_uart.BlockingRead());
-
-	//1 Hz timer event
-	if(g_logTimer.GetCount() >= next1HzTick)
-	{
-		next1HzTick = g_logTimer.GetCount() + 10000;
-		//nothing to do in here for now
-	}
-
-	//Check for I2C activity
-	static IBCI2CServer server(g_i2c);
-	server.Poll();
-}
-
-uint16_t GetInputVoltage()
-{
-	//48V rail is ADC1_IN7, 30.323x division
-	return round(g_adc->ReadChannelScaledAveraged(7, 32) * 30.323);
-}
-
-uint16_t GetOutputVoltage()
-{
-	//12V rail output is ADC_IN9, 5.094x division
-	return round(g_adc->ReadChannelScaledAveraged(9, 32) * 5.094);
-}
-
-uint16_t GetSenseVoltage()
-{
-	//12V remote sense (including cable loss) is ADC_IN5, 5.094x division
-	return round(g_adc->ReadChannelScaledAveraged(5, 32) * 5.094);
-}
-
-uint16_t GetInputCurrent()
-{
-	float vshunt = g_adc->ReadChannelScaledAveraged(ADC_CHANNEL_INPUT_CURRENT, 32);
-	return round( (vshunt * SHUNT_SCALE_INPUT_CURRENT) - g_inputCurrentShuntOffset );
-}
-
-uint16_t GetOutputCurrent()
-{
-	float vshunt = g_adc->ReadChannelScaledAveraged(ADC_CHANNEL_OUTPUT_CURRENT, 32);
-	return round( (vshunt * SHUNT_SCALE_OUTPUT_CURRENT) - g_outputCurrentShuntOffset );
-}

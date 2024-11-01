@@ -9802,6 +9802,16 @@
 		)
 		(uuid "276cdd3f-3bbe-47d0-bb0a-9513d5afe3f6")
 	)
+	(text "TODO: make 3V3_SB regulator fed from 12V0_RAW rather than 12V0_SWIN \nso switching spikes don't end up on output"
+		(exclude_from_sim no)
+		(at 250.698 226.822 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "2eb9748a-f221-490b-859f-0fba1d78b46c")
+	)
 	(text "5V standby regulator\nThermally limited to 142 mA"
 		(exclude_from_sim no)
 		(at 344.17 262.89 0)

@@ -34,6 +34,8 @@
 
 #include <peripheral/ADC.h>
 #include <peripheral/I2C.h>
+#include <peripheral/ITM.h>
+#include <peripheral/ITMStream.h>
 
 #include <embedded-utils/FIFO.h>
 #include <embedded-utils/StringBuffer.h>
@@ -42,9 +44,6 @@
 #include "../bsp/hwinit.h"
 
 #include <cli/UARTOutputStream.h>
-
-#include "IBCI2CServer.h"
-#include "IBCCLISessionContext.h"
 
 void InitGPIOs();
 void InitI2C();
@@ -64,19 +63,10 @@ extern GPIOPin g_loadEnableSense;
 extern GPIOPin g_outEnableFromLoad;
 extern GPIOPin g_outEnableFromProtection;
 
-uint16_t GetInputVoltage();
-uint16_t GetOutputVoltage();
-uint16_t GetSenseVoltage();
-uint16_t GetInputCurrent();
-uint16_t GetOutputCurrent();
-
 void PrintSensorValues();
 
 extern uint16_t g_inputCurrentShuntOffset;
 extern uint16_t g_outputCurrentShuntOffset;
-
-extern IBCCLISessionContext g_localConsoleSessionContext;
-extern UARTOutputStream g_localConsoleOutputStream;
 
 //ADC channels
 enum adc_channel_index
@@ -91,5 +81,13 @@ enum adc_channel_index
 
 extern const char* g_iincalObjectName;
 extern const char* g_ioutcalObjectName;
+
+extern bool g_freestandingMode;
+extern const uint8_t g_tempI2cAddress;
+
+#include "IBCI2CServer.h"
+#include "IBCCLISessionContext.h"
+
+extern IBCI2CServer* g_i2cServer;
 
 #endif
