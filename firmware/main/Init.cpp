@@ -38,6 +38,7 @@
 #include "OneHzTimerTask.h"
 #include "TwoHzTimerTask.h"
 #include "LocalConsoleTask.h"
+#include "OutputEnableTask.h"
 
 //Indicator LEDs
 GPIOPin g_standbyLED(&GPIOB, 12, GPIOPin::MODE_OUTPUT, GPIOPin::SLEW_SLOW);
@@ -120,6 +121,10 @@ void App_Init()
 	static TwoHzTimerTask timerTask2(0, 10 * 500);
 	g_tasks.push_back(&timerTask2);
 	g_timerTasks.push_back(&timerTask2);
+
+	//Output enable LEDs etc
+	static OutputEnableTask oeTask;
+	g_tasks.push_back(&oeTask);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
